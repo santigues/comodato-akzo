@@ -11,550 +11,46 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <div class="brand-mark"></div>
-    <div>
-      <div class="brand-name">AkzoNobel</div>
-      <div class="brand-sub">Comodato</div>
-    </div>
-  </div>
-
-  <nav class="sidebar-nav">
-    <div class="nav-section-label">Menu</div>
-    <a class="nav-item active" href="#" onclick="showView('nova', this)">
-      <i class="fa-solid fa-plus"></i>
-      <span>Nova solicitação</span>
-    </a>
-    <a class="nav-item" href="#" onclick="showView('historico', this)">
-      <i class="fa-solid fa-list-ul"></i>
-      <span>Minhas solicitações</span>
-    </a>
-    <a class="nav-item" href="#" onclick="showView('aguardando', this)">
-      <i class="fa-solid fa-clock"></i>
-      <span>Aguardando aprovação</span>
-      <span class="badge">1</span>
-    </a>
-    <a class="nav-item" href="#" onclick="showView('contratos', this)">
-      <i class="fa-solid fa-file-contract"></i>
-      <span>Contratos gerados</span>
-    </a>
-  </nav>
-
-  <div class="sidebar-user">
-    <div class="user-avatar">SS</div>
-    <div class="user-info">
-      <div class="user-name">Sarah Santos</div>
-      <div class="user-role">Representante</div>
-    </div>
-    <i class="fa-solid fa-right-from-bracket logout-icon"></i>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main-content">
-
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-title" id="topbar-title">Nova solicitação</div>
-    <div class="topbar-actions">
-      <div class="topbar-date" id="topbar-date"></div>
-    </div>
-  </header>
-
-  <!-- VIEW: NOVA SOLICITAÇÃO -->
-  <div class="view" id="view-nova">
-
-    <!-- STEPPER -->
-    <div class="stepper" id="stepper">
-      <div class="step active" data-step="1">
-        <div class="step-circle"><span>1</span><i class="fa-solid fa-check"></i></div>
-        <div class="step-info">
-          <div class="step-label">Dados do cliente</div>
-          <div class="step-desc">Identificação e produto</div>
-        </div>
-      </div>
-      <div class="step-connector"></div>
-      <div class="step" data-step="2">
-        <div class="step-circle"><span>2</span><i class="fa-solid fa-check"></i></div>
-        <div class="step-info">
-          <div class="step-label">Dados do contrato</div>
-          <div class="step-desc">Comodatário e vigência</div>
-        </div>
-      </div>
-      <div class="step-connector"></div>
-      <div class="step" data-step="3">
-        <div class="step-circle"><span>3</span><i class="fa-solid fa-check"></i></div>
-        <div class="step-info">
-          <div class="step-label">Equipamentos</div>
-          <div class="step-desc">Especificação e valor</div>
-        </div>
-      </div>
-      <div class="step-connector"></div>
-      <div class="step" data-step="4">
-        <div class="step-circle"><span>4</span><i class="fa-solid fa-check"></i></div>
-        <div class="step-info">
-          <div class="step-label">Revisão e envio</div>
-          <div class="step-desc">Confirmar e enviar</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TELA 1: Dados do cliente -->
-    <div class="screen" id="screen-1">
-      <div class="screen-header">
-        <h2 class="screen-title">Dados do cliente</h2>
-        <p class="screen-desc">Preencha as informações do cliente e do responsável pela solicitação.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-user card-icon"></i>
-          <span>Identificação</span>
-        </div>
-        <div class="form-grid col-2">
-          <div class="field">
-            <label for="f-sap">Cód SAP <span class="required">*</span></label>
-            <input type="text" id="f-sap" placeholder="Ex: 127566" autocomplete="off"/>
-            <div class="field-hint">Código do cliente no sistema SAP</div>
-          </div>
-          <div class="field">
-            <label>Tipo de solicitação <span class="required">*</span></label>
-            <div class="toggle-group">
-              <button class="toggle-btn active" data-value="Novo" onclick="selectToggle(this)">
-                <i class="fa-solid fa-star"></i> Novo
-              </button>
-              <button class="toggle-btn" data-value="Reativação" onclick="selectToggle(this)">
-                <i class="fa-solid fa-rotate-right"></i> Reativação
-              </button>
-            </div>
-          </div>
-          <div class="field col-span-2">
-            <label for="f-cliente">Nome do cliente <span class="required">*</span></label>
-            <input type="text" id="f-cliente" placeholder="Nome completo ou razão social do cliente" autocomplete="off"/>
-          </div>
-          <div class="field col-span-2">
-            <label for="f-endereco">Endereço do cliente</label>
-            <input type="text" id="f-endereco" placeholder="Rua, número, bairro — Cidade / UF" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label for="f-responsavel">Responsável (vendedor)</label>
-            <input type="text" id="f-responsavel" value="João Silva" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label for="f-linha">Linha de produto <span class="required">*</span></label>
-            <div class="select-wrap">
-              <select id="f-linha">
-                <option value="">Selecione...</option>
-                <option value="Wanda">Wanda</option>
-                <option value="Sikkens">Sikkens</option>
-                <option value="Coral">Coral</option>
-                <option value="Ypiranga">Ypiranga</option>
-              </select>
-              <i class="fa-solid fa-chevron-down select-arrow"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-chart-bar card-icon"></i>
-          <span>Histórico de volume</span>
-        </div>
-        <div class="metrics-row">
-          <div class="metric-card">
-            <div class="metric-label">Volume 2024 (grupo)</div>
-            <input class="metric-input" type="number" id="f-volume" placeholder="0" min="0"/>
-            <div class="metric-unit">litros</div>
-          </div>
-          <div class="metric-divider"></div>
-          <div class="metric-card">
-            <div class="metric-label">Média 2024 (grupo)</div>
-            <input class="metric-input" type="number" id="f-media" placeholder="0" min="0"/>
-            <div class="metric-unit">litros/mês</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <div></div>
-        <button class="btn btn-primary" onclick="goStep(2)">
-          Próximo <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- TELA 2: Dados do contrato -->
-    <div class="screen hidden" id="screen-2">
-      <div class="screen-header">
-        <h2 class="screen-title">Dados do contrato</h2>
-        <p class="screen-desc">Essas informações serão inseridas automaticamente no contrato Word via Power Automate.</p>
-      </div>
-
-      <div class="info-banner">
-        <i class="fa-solid fa-circle-info"></i>
-        <span>Os campos abaixo preencherão o template do contrato de comodato automaticamente após a aprovação.</span>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-building card-icon"></i>
-          <span>Dados jurídicos do comodatário</span>
-        </div>
-        <div class="form-grid col-2">
-          <div class="field col-span-2">
-            <label for="f-razao">Razão social <span class="required">*</span></label>
-            <input type="text" id="f-razao" placeholder="Ex: Oficina do Pedro Ltda" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label for="f-cnpj">CNPJ <span class="required">*</span></label>
-            <input type="text" id="f-cnpj" placeholder="00.000.000/0000-00" maxlength="18" oninput="maskCNPJ(this)" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label for="f-end-cod">Endereço completo <span class="required">*</span></label>
-            <input type="text" id="f-end-cod" placeholder="Rua, número, cidade / UF" autocomplete="off"/>
-          </div>
-          <div class="field col-span-2">
-            <label for="f-contato">Nome, e-mail e telefone do contato <span class="required">*</span></label>
-            <input type="text" id="f-contato" placeholder="Ex: Pedro Silva • pedro@oficina.com.br • (11) 99999-0000" autocomplete="off"/>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-calendar-days card-icon"></i>
-          <span>Vigência do contrato</span>
-        </div>
-        <div class="form-grid col-2">
-          <div class="field">
-            <label for="f-dtini">Data de início <span class="required">*</span></label>
-            <input type="date" id="f-dtini"/>
-          </div>
-          <div class="field">
-            <label for="f-dtfim">Data de término <span class="required">*</span></label>
-            <input type="date" id="f-dtfim"/>
-          </div>
-          <div class="field">
-            <label for="f-local">Local de assinatura</label>
-            <input type="text" id="f-local" placeholder="Ex: São Paulo / SP" autocomplete="off"/>
-          </div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goStep(1)">
-          <i class="fa-solid fa-arrow-left"></i> Voltar
-        </button>
-        <button class="btn btn-primary" onclick="goStep(3)">
-          Próximo <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- TELA 3: Equipamentos -->
-    <div class="screen hidden" id="screen-3">
-      <div class="screen-header">
-        <h2 class="screen-title">Equipamentos</h2>
-        <p class="screen-desc">Especifique os equipamentos e o valor do investimento solicitado.</p>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-wrench card-icon"></i>
-          <span>Especificação do equipamento</span>
-        </div>
-        <div class="form-grid col-2">
-          <div class="field col-span-2">
-            <label for="f-equip">Descrição do equipamento <span class="required">*</span></label>
-            <input type="text" id="f-equip" placeholder="Ex: Cabine de pintura — modelo XYZ 2000" autocomplete="off"/>
-          </div>
-          <div class="field">
-            <label for="f-qtd">Quantidade</label>
-            <input type="number" id="f-qtd" placeholder="1" min="1" value="1"/>
-          </div>
-          <div class="field">
-            <label for="f-valor">Valor estimado (R$)</label>
-            <div class="input-prefix-wrap">
-              <span class="input-prefix">R$</span>
-              <input type="number" id="f-valor" placeholder="0,00" min="0" step="0.01"/>
-            </div>
-          </div>
-          <div class="field col-span-2">
-            <label for="f-obs">Justificativa / observações</label>
-            <textarea id="f-obs" rows="4" placeholder="Descreva o motivo do investimento, retorno esperado, metas de volume..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <i class="fa-solid fa-paperclip card-icon"></i>
-          <span>Anexos (opcional)</span>
-        </div>
-        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
-          <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-          <div class="drop-text">Arraste arquivos aqui ou <span class="drop-link">clique para selecionar</span></div>
-          <div class="drop-hint">PDF, Word, imagens — máx. 10 MB por arquivo</div>
-          <input type="file" id="file-input" multiple style="display:none" onchange="handleFiles(this.files)"/>
-        </div>
-        <div id="file-list" class="file-list"></div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goStep(2)">
-          <i class="fa-solid fa-arrow-left"></i> Voltar
-        </button>
-        <button class="btn btn-primary" onclick="goStep(4)">
-          Revisar e enviar <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- TELA 4: Revisão -->
-    <div class="screen hidden" id="screen-4">
-      <div class="screen-header">
-        <h2 class="screen-title">Revisão e envio</h2>
-        <p class="screen-desc">Confira todos os dados antes de enviar para aprovação.</p>
-      </div>
-
-      <div class="review-grid">
-        <div class="card review-section">
-          <div class="card-header">
-            <i class="fa-solid fa-user card-icon"></i>
-            <span>Dados do cliente</span>
-            <button class="edit-btn" onclick="goStep(1)"><i class="fa-solid fa-pen"></i> Editar</button>
-          </div>
-          <div class="review-items" id="review-cliente"></div>
-        </div>
-
-        <div class="card review-section">
-          <div class="card-header">
-            <i class="fa-solid fa-building card-icon"></i>
-            <span>Dados do contrato</span>
-            <button class="edit-btn" onclick="goStep(2)"><i class="fa-solid fa-pen"></i> Editar</button>
-          </div>
-          <div class="review-items" id="review-contrato"></div>
-        </div>
-
-        <div class="card review-section col-span-2">
-          <div class="card-header">
-            <i class="fa-solid fa-wrench card-icon"></i>
-            <span>Equipamento</span>
-            <button class="edit-btn" onclick="goStep(3)"><i class="fa-solid fa-pen"></i> Editar</button>
-          </div>
-          <div class="review-items" id="review-equip"></div>
-        </div>
-      </div>
-
-      <div class="submit-box">
-        <div class="submit-info">
-          <i class="fa-solid fa-shield-halved"></i>
-          <div>
-            <div class="submit-info-title">Pronto para enviar</div>
-            <div class="submit-info-desc">Após o envio, o aprovador receberá uma notificação por e-mail e Teams. Você será avisado assim que houver uma decisão.</div>
-          </div>
-        </div>
-        <button class="btn btn-submit" onclick="enviarSolicitacao()">
-          <i class="fa-solid fa-paper-plane"></i> Enviar para aprovação
-        </button>
-      </div>
-
-      <div class="btn-row" style="margin-top:0">
-        <button class="btn btn-ghost" onclick="goStep(3)">
-          <i class="fa-solid fa-arrow-left"></i> Voltar
-        </button>
-        <div></div>
-      </div>
-    </div>
-
-    <!-- TELA 5: Sucesso -->
-    <div class="screen hidden" id="screen-5">
-      <div class="success-container">
-        <div class="success-icon">
-          <i class="fa-solid fa-check"></i>
-        </div>
-        <h2 class="success-title">Solicitação enviada!</h2>
-        <p class="success-desc">Sua solicitação foi registrada com sucesso e está aguardando aprovação. Você receberá um e-mail quando houver uma decisão.</p>
-        <div class="success-ref">Protocolo: <strong id="success-ref-num"></strong></div>
-        <div class="success-actions">
-          <button class="btn btn-primary" onclick="novaSolicitacao()">
-            <i class="fa-solid fa-plus"></i> Nova solicitação
-          </button>
-          <button class="btn btn-ghost" onclick="showView('historico', document.querySelector('.nav-item:nth-child(2)'))">
-            Ver minhas solicitações
-          </button>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /view-nova -->
-
-  <!-- VIEW: HISTÓRICO -->
-  <div class="view hidden" id="view-historico">
-    <div class="screen-header">
-      <h2 class="screen-title">Minhas solicitações</h2>
-      <p class="screen-desc">Acompanhe o status de todas as suas solicitações.</p>
-    </div>
-
-    <div class="card">
-      <div class="history-filters">
-        <button class="filter-btn active" onclick="filterHistory(this,'all')">Todas</button>
-        <button class="filter-btn" onclick="filterHistory(this,'Pendente')">Pendentes</button>
-        <button class="filter-btn" onclick="filterHistory(this,'Aprovado')">Aprovadas</button>
-        <button class="filter-btn" onclick="filterHistory(this,'Reprovado')">Reprovadas</button>
-      </div>
-
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Protocolo</th>
-            <th>Cliente</th>
-            <th>Equipamento</th>
-            <th>Enviado em</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="history-body">
-          <tr data-status="Aprovado">
-            <td><span class="mono">#2025-001</span></td>
-            <td>Oficina Central Ltda</td>
-            <td>Cabine de Pintura XYZ</td>
-            <td>10/05/2025</td>
-            <td><span class="status-badge aprovado">Aprovado</span></td>
-            <td><button class="btn-icon" title="Ver contrato"><i class="fa-solid fa-file-pdf"></i></button></td>
-          </tr>
-          <tr data-status="Pendente">
-            <td><span class="mono">#2025-002</span></td>
-            <td>Auto Peças São Paulo</td>
-            <td>Elevador Hidráulico</td>
-            <td>02/05/2025</td>
-            <td><span class="status-badge pendente">Pendente</span></td>
-            <td><button class="btn-icon" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button></td>
-          </tr>
-          <tr data-status="Reprovado">
-            <td><span class="mono">#2025-003</span></td>
-            <td>Funilaria Boa Vista</td>
-            <td>Compressor de Ar</td>
-            <td>18/04/2025</td>
-            <td><span class="status-badge reprovado">Reprovado</span></td>
-            <td><button class="btn-icon" title="Ver motivo"><i class="fa-solid fa-circle-info"></i></button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- VIEW: AGUARDANDO -->
-  <div class="view hidden" id="view-aguardando">
-    <div class="screen-header">
-      <h2 class="screen-title">Aguardando aprovação</h2>
-      <p class="screen-desc">Solicitações enviadas e aguardando decisão do aprovador.</p>
-    </div>
-    <div class="card">
-      <div class="pending-item">
-        <div class="pending-icon"><i class="fa-solid fa-clock"></i></div>
-        <div class="pending-info">
-          <div class="pending-title">Auto Peças São Paulo — Elevador Hidráulico</div>
-          <div class="pending-meta">Protocolo <span class="mono">#2025-002</span> • Enviado em 02/05/2025</div>
-          <div class="pending-approver">Aguardando aprovação de <strong>Maria Santos (Gerente Regional)</strong></div>
-        </div>
-        <div class="pending-time">11 dias</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW: CONTRATOS -->
-  <div class="view hidden" id="view-contratos">
-    <div class="screen-header">
-      <h2 class="screen-title">Contratos gerados</h2>
-      <p class="screen-desc">Contratos aprovados e gerados automaticamente pelo sistema.</p>
-    </div>
-    <div class="card">
-      <div class="contract-item">
-        <div class="contract-icon"><i class="fa-solid fa-file-word"></i></div>
-        <div class="contract-info">
-          <div class="contract-name">Contrato_Comodato_Oficina_Central.docx</div>
-          <div class="contract-meta">Oficina Central Ltda • Gerado em 12/05/2025</div>
-        </div>
-        <button class="btn btn-ghost btn-sm">
-          <i class="fa-solid fa-download"></i> Baixar
-        </button>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<script src="js/app.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Solicitação de Comodato — AkzoNobel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="css/style.css"/>
-</head>
-<body>
-
-<!-- LOGIN -->
+<!-- ══ TELA DE LOGIN ══════════════════════════ -->
 <div id="login-screen">
-
-  <div class="login-container">
-
-    <div class="logo">
-      <div class="logo-mark"></div>
-
-      <div class="logo-text">
-        <h1>AkzoNobel</h1>
-        <span>Comodato</span>
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-brand-mark"></div>
+        <div>
+          <div class="login-brand-name">AkzoNobel</div>
+          <div class="login-brand-sub">Comodato</div>
+        </div>
       </div>
+
+      <h2 class="login-title">Bem-vindo de volta</h2>
+      <p class="login-subtitle">Entre com suas credenciais para continuar</p>
+
+      <div id="login-erro" class="login-erro hidden"></div>
+
+      <div class="login-field">
+        <label for="login-email">E-mail</label>
+        <div class="login-input-wrap">
+          <i class="fa-regular fa-user"></i>
+          <input type="email" id="login-email" placeholder="Coloque seu e-mail" autocomplete="email"/>
+        </div>
+      </div>
+
+      <div class="login-field">
+        <label for="login-senha">Senha</label>
+        <div class="login-input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="login-senha" placeholder="Coloque sua senha" autocomplete="current-password"/>
+        </div>
+        <div class="login-forgot"><a href="#">Esqueceu sua senha?</a></div>
+      </div>
+
+      <button class="login-btn" onclick="fazerLogin()">Entrar</button>
     </div>
-
-    <h2 class="login-title">Entrar</h2>
-
-    <p class="login-subtitle">
-      Acesse o sistema de solicitações
-    </p>
-
-    <div class="field">
-      <label>E-mail</label>
-
-      <input
-        type="email"
-        id="login-email"
-        placeholder="Digite seu e-mail"
-      >
-    </div>
-
-    <div class="field">
-      <label>Senha</label>
-
-      <input
-        type="password"
-        id="login-senha"
-        placeholder="Digite sua senha"
-      >
-    </div>
-
-    <div id="login-erro"></div>
-
-    <button class="btn btn-primary" onclick="fazerLogin()">
-      Entrar
-    </button>
-
   </div>
-
 </div>
 
+<!-- ══ APP SHELL (fica oculto até o login) ══ -->
 <div id="app-shell" class="hidden">
 
 <!-- SIDEBAR -->
@@ -589,12 +85,12 @@
   </nav>
 
   <div class="sidebar-user">
-    <div class="user-avatar">SS</div>
+    <div class="user-avatar" id="user-iniciais">--</div>
     <div class="user-info">
-      <div class="user-name">Sarah Santos</div>
-      <div class="user-role">Representante</div>
+      <div class="user-name" id="user-nome">—</div>
+      <div class="user-role" id="user-cargo">—</div>
     </div>
-    <i class="fa-solid fa-right-from-bracket logout-icon"></i>
+    <i class="fa-solid fa-right-from-bracket logout-icon" onclick="fazerLogout()" title="Sair"></i>
   </div>
 </aside>
 
@@ -686,7 +182,7 @@
           </div>
           <div class="field">
             <label for="f-responsavel">Responsável (vendedor)</label>
-            <input type="text" id="f-responsavel" value="João Silva" autocomplete="off"/>
+            <input type="text" id="f-responsavel" value="" autocomplete="off"/>
           </div>
           <div class="field">
             <label for="f-linha">Linha de produto <span class="required">*</span></label>
@@ -1035,7 +531,7 @@
 
 </main>
 
-</div>
+</div><!-- /app-shell -->
 
 <script src="js/app.js"></script>
 </body>
