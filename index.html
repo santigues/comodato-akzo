@@ -3,79 +3,20 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Solicitação de Comodato — AkzoNobel</title>
 
-  <!-- FONT -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-
-  <!-- ICONS -->
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/style.css"/>
 </head>
-
 <body>
 
-<!-- =========================================================
-     LOGIN
-========================================================= -->
-<div id="login-screen">
-
-  <div class="login-card">
-
-    <h1 class="login-title">Login</h1>
-
-    <div class="login-input-group">
-      <i class="fa-regular fa-user"></i>
-
-      <input
-        type="email"
-        id="login-email"
-        placeholder="Coloque seu e-mail"
-      />
-    </div>
-
-    <div class="login-input-group">
-      <i class="fa-solid fa-lock"></i>
-
-      <input
-        type="password"
-        id="login-senha"
-        placeholder="Coloque sua senha"
-      />
-    </div>
-
-    <div class="login-extra">
-      <a href="#">Esqueceu sua senha?</a>
-    </div>
-
-    <div id="login-erro" class="login-erro hidden"></div>
-
-    <button class="login-btn" onclick="fazerLogin()">
-      Entrar
-    </button>
-
-  </div>
-
-</div>
-
-<!-- =========================================================
-     APP
-========================================================= -->
-<div id="app-shell" class="hidden">
-
 <!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-
+<aside class="sidebar">
   <div class="sidebar-brand">
     <div class="brand-mark"></div>
-
     <div>
       <div class="brand-name">AkzoNobel</div>
       <div class="brand-sub">Comodato</div>
@@ -83,69 +24,40 @@
   </div>
 
   <nav class="sidebar-nav">
-
     <div class="nav-section-label">Menu</div>
 
-    <a class="nav-item active"
-       href="#"
-       onclick="showView('nova', this)">
-
+    <a class="nav-item active" href="#" onclick="showView('nova', this)">
       <i class="fa-solid fa-plus"></i>
       <span>Nova solicitação</span>
     </a>
 
-    <a class="nav-item"
-       href="#"
-       onclick="showView('historico', this)">
-
+    <a class="nav-item" href="#" onclick="showView('historico', this)">
       <i class="fa-solid fa-list-ul"></i>
       <span>Minhas solicitações</span>
     </a>
 
-    <a class="nav-item"
-       href="#"
-       onclick="showView('aguardando', this)">
-
+    <a class="nav-item" href="#" onclick="showView('aguardando', this)">
       <i class="fa-solid fa-clock"></i>
       <span>Aguardando aprovação</span>
-
       <span class="badge">1</span>
     </a>
 
-    <a class="nav-item"
-       href="#"
-       onclick="showView('contratos', this)">
-
+    <a class="nav-item" href="#" onclick="showView('contratos', this)">
       <i class="fa-solid fa-file-contract"></i>
       <span>Contratos gerados</span>
     </a>
-
   </nav>
 
-  <!-- USER -->
   <div class="sidebar-user">
-
-    <div class="user-avatar" id="user-iniciais">
-      SS
-    </div>
+    <div class="user-avatar">SS</div>
 
     <div class="user-info">
-
-      <div class="user-name" id="user-nome">
-        Sarah Santos
-      </div>
-
-      <div class="user-role" id="user-cargo">
-        Representante
-      </div>
-
+      <div class="user-name">Sarah Santos</div>
+      <div class="user-role">Representante</div>
     </div>
 
-    <i class="fa-solid fa-right-from-bracket logout-icon"
-       onclick="fazerLogout()"></i>
-
+    <i class="fa-solid fa-right-from-bracket logout-icon"></i>
   </div>
-
 </aside>
 
 <!-- MAIN -->
@@ -153,456 +65,193 @@
 
   <!-- TOPBAR -->
   <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Nova solicitação</div>
 
-    <div class="topbar-title"
-         id="topbar-title">
-
-      Nova solicitação
-    </div>
-
-    <div class="topbar-actions">
-      <div class="topbar-date"
-           id="topbar-date"></div>
-    </div>
-
+    <div class="topbar-date" id="topbar-date"></div>
   </header>
 
   <!-- VIEW NOVA -->
   <div class="view" id="view-nova">
 
-    <!-- STEPPER -->
-    <div class="stepper" id="stepper">
-
-      <div class="step active" data-step="1">
-
-        <div class="step-circle">
-          <span>1</span>
-          <i class="fa-solid fa-check"></i>
-        </div>
-
-        <div class="step-info">
-          <div class="step-label">Dados do cliente</div>
-          <div class="step-desc">Identificação e produto</div>
-        </div>
-
-      </div>
-
-      <div class="step-connector"></div>
-
-      <div class="step" data-step="2">
-
-        <div class="step-circle">
-          <span>2</span>
-          <i class="fa-solid fa-check"></i>
-        </div>
-
-        <div class="step-info">
-          <div class="step-label">Dados do contrato</div>
-          <div class="step-desc">Comodatário e vigência</div>
-        </div>
-
-      </div>
-
-      <div class="step-connector"></div>
-
-      <div class="step" data-step="3">
-
-        <div class="step-circle">
-          <span>3</span>
-          <i class="fa-solid fa-check"></i>
-        </div>
-
-        <div class="step-info">
-          <div class="step-label">Equipamentos</div>
-          <div class="step-desc">Especificação e valor</div>
-        </div>
-
-      </div>
-
-      <div class="step-connector"></div>
-
-      <div class="step" data-step="4">
-
-        <div class="step-circle">
-          <span>4</span>
-          <i class="fa-solid fa-check"></i>
-        </div>
-
-        <div class="step-info">
-          <div class="step-label">Revisão e envio</div>
-          <div class="step-desc">Confirmar e enviar</div>
-        </div>
-
-      </div>
-
+    <div class="screen-header">
+      <h2 class="screen-title">Nova solicitação</h2>
+      <p class="screen-desc">
+        Preencha os dados para iniciar uma nova solicitação de comodato.
+      </p>
     </div>
 
-    <!-- =====================================================
-         SCREEN 1
-    ====================================================== -->
-    <div class="screen" id="screen-1">
-
-      <div class="screen-header">
-        <h2 class="screen-title">Dados do cliente</h2>
-
-        <p class="screen-desc">
-          Preencha as informações do cliente.
-        </p>
+    <div class="card">
+      <div class="card-header">
+        <i class="fa-solid fa-user card-icon"></i>
+        <span>Dados do cliente</span>
       </div>
 
-      <div class="card">
+      <div class="form-grid col-2">
 
-        <div class="card-header">
-          <i class="fa-solid fa-user card-icon"></i>
-          <span>Identificação</span>
+        <div class="field">
+          <label>Cód SAP</label>
+          <input type="text" placeholder="Ex: 127566"/>
         </div>
 
-        <div class="form-grid col-2">
+        <div class="field">
+          <label>Nome do cliente</label>
+          <input type="text" placeholder="Nome do cliente"/>
+        </div>
 
-          <div class="field">
-            <label for="f-sap">
-              Cód SAP <span class="required">*</span>
-            </label>
+        <div class="field">
+          <label>Responsável</label>
+          <input type="text" placeholder="Responsável"/>
+        </div>
 
-            <input
-              type="text"
-              id="f-sap"
-              placeholder="Ex: 127566"
-            />
+        <div class="field">
+          <label>Linha de produto</label>
+
+          <div class="select-wrap">
+            <select>
+              <option>Selecione...</option>
+              <option>Wanda</option>
+              <option>Sikkens</option>
+              <option>Coral</option>
+            </select>
+
+            <i class="fa-solid fa-chevron-down select-arrow"></i>
           </div>
-
-          <div class="field">
-
-            <label>
-              Tipo de solicitação
-            </label>
-
-            <div class="toggle-group">
-
-              <button
-                class="toggle-btn active"
-                data-value="Novo"
-                onclick="selectToggle(this)">
-
-                Novo
-              </button>
-
-              <button
-                class="toggle-btn"
-                data-value="Reativação"
-                onclick="selectToggle(this)">
-
-                Reativação
-              </button>
-
-            </div>
-
-          </div>
-
-          <div class="field col-span-2">
-
-            <label for="f-cliente">
-              Nome do cliente
-            </label>
-
-            <input
-              type="text"
-              id="f-cliente"
-              placeholder="Nome completo"
-            />
-
-          </div>
-
-          <div class="field">
-
-            <label for="f-responsavel">
-              Responsável
-            </label>
-
-            <input
-              type="text"
-              id="f-responsavel"
-            />
-
-          </div>
-
-          <div class="field">
-
-            <label for="f-linha">
-              Linha de produto
-            </label>
-
-            <div class="select-wrap">
-
-              <select id="f-linha">
-
-                <option value="">
-                  Selecione...
-                </option>
-
-                <option value="Wanda">
-                  Wanda
-                </option>
-
-                <option value="Sikkens">
-                  Sikkens
-                </option>
-
-                <option value="Coral">
-                  Coral
-                </option>
-
-              </select>
-
-              <i class="fa-solid fa-chevron-down select-arrow"></i>
-
-            </div>
-
-          </div>
-
         </div>
 
       </div>
 
-      <div class="btn-row">
-
+      <div class="btn-row" style="margin-top:20px;">
         <div></div>
 
-        <button
-          class="btn btn-primary"
-          onclick="goStep(2)">
-
-          Próximo
-          <i class="fa-solid fa-arrow-right"></i>
-
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- =====================================================
-         SCREEN 2
-    ====================================================== -->
-    <div class="screen hidden" id="screen-2">
-
-      <div class="screen-header">
-
-        <h2 class="screen-title">
-          Dados do contrato
-        </h2>
-
-      </div>
-
-      <div class="card">
-
-        <div class="form-grid col-2">
-
-          <div class="field col-span-2">
-
-            <label for="f-razao">
-              Razão social
-            </label>
-
-            <input
-              type="text"
-              id="f-razao"
-            />
-
-          </div>
-
-          <div class="field">
-
-            <label for="f-cnpj">
-              CNPJ
-            </label>
-
-            <input
-              type="text"
-              id="f-cnpj"
-              oninput="maskCNPJ(this)"
-            />
-
-          </div>
-
-          <div class="field">
-
-            <label for="f-end-cod">
-              Endereço
-            </label>
-
-            <input
-              type="text"
-              id="f-end-cod"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="btn-row">
-
-        <button
-          class="btn btn-ghost"
-          onclick="goStep(1)">
-
-          Voltar
-        </button>
-
-        <button
-          class="btn btn-primary"
-          onclick="goStep(3)">
-
-          Próximo
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- =====================================================
-         SCREEN 3
-    ====================================================== -->
-    <div class="screen hidden" id="screen-3">
-
-      <div class="screen-header">
-
-        <h2 class="screen-title">
-          Equipamentos
-        </h2>
-
-      </div>
-
-      <div class="card">
-
-        <div class="form-grid col-2">
-
-          <div class="field col-span-2">
-
-            <label for="f-equip">
-              Equipamento
-            </label>
-
-            <input
-              type="text"
-              id="f-equip"
-            />
-
-          </div>
-
-          <div class="field">
-
-            <label for="f-qtd">
-              Quantidade
-            </label>
-
-            <input
-              type="number"
-              id="f-qtd"
-              value="1"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="btn-row">
-
-        <button
-          class="btn btn-ghost"
-          onclick="goStep(2)">
-
-          Voltar
-        </button>
-
-        <button
-          class="btn btn-primary"
-          onclick="goStep(4)">
-
-          Revisar
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- =====================================================
-         SCREEN 4
-    ====================================================== -->
-    <div class="screen hidden" id="screen-4">
-
-      <div class="screen-header">
-
-        <h2 class="screen-title">
-          Revisão
-        </h2>
-
-      </div>
-
-      <div class="card">
-        <div id="review-cliente"></div>
-      </div>
-
-      <div class="submit-box">
-
-        <div class="submit-info">
-
-          <i class="fa-solid fa-shield-halved"></i>
-
-          <div>
-
-            <div class="submit-info-title">
-              Pronto para enviar
-            </div>
-
-            <div class="submit-info-desc">
-              Confira os dados antes do envio.
-            </div>
-
-          </div>
-
-        </div>
-
-        <button
-          class="btn-submit"
-          onclick="enviarSolicitacao()">
-
-          <i class="fa-solid fa-paper-plane"></i>
+        <button class="btn btn-primary">
           Enviar
-
+          <i class="fa-solid fa-arrow-right"></i>
         </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VIEW HISTÓRICO -->
+  <div class="view hidden" id="view-historico">
+
+    <div class="screen-header">
+      <h2 class="screen-title">Minhas solicitações</h2>
+
+      <p class="screen-desc">
+        Acompanhe o status das solicitações.
+      </p>
+    </div>
+
+    <div class="card">
+
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Protocolo</th>
+            <th>Cliente</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>#2025-001</td>
+            <td>Oficina Central</td>
+            <td>
+              <span class="status-badge aprovado">
+                Aprovado
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>#2025-002</td>
+            <td>Auto Peças SP</td>
+            <td>
+              <span class="status-badge pendente">
+                Pendente
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- VIEW AGUARDANDO -->
+  <div class="view hidden" id="view-aguardando">
+
+    <div class="screen-header">
+      <h2 class="screen-title">Aguardando aprovação</h2>
+
+      <p class="screen-desc">
+        Solicitações aguardando aprovação.
+      </p>
+    </div>
+
+    <div class="card">
+
+      <div class="pending-item">
+
+        <div class="pending-icon">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+
+        <div class="pending-info">
+          <div class="pending-title">
+            Auto Peças São Paulo
+          </div>
+
+          <div class="pending-meta">
+            Protocolo #2025-002
+          </div>
+
+          <div class="pending-approver">
+            Aguardando gerente regional
+          </div>
+        </div>
 
       </div>
 
     </div>
 
-    <!-- =====================================================
-         SCREEN 5
-    ====================================================== -->
-    <div class="screen hidden" id="screen-5">
+  </div>
 
-      <div class="success-container">
+  <!-- VIEW CONTRATOS -->
+  <div class="view hidden" id="view-contratos">
 
-        <div class="success-icon">
-          <i class="fa-solid fa-check"></i>
+    <div class="screen-header">
+      <h2 class="screen-title">Contratos gerados</h2>
+
+      <p class="screen-desc">
+        Contratos disponíveis para download.
+      </p>
+    </div>
+
+    <div class="card">
+
+      <div class="contract-item">
+
+        <div class="contract-icon">
+          <i class="fa-solid fa-file-word"></i>
         </div>
 
-        <h2 class="success-title">
-          Solicitação enviada!
-        </h2>
+        <div class="contract-info">
+          <div class="contract-name">
+            Contrato_Comodato.docx
+          </div>
 
-        <p class="success-desc">
-          Sua solicitação foi enviada com sucesso.
-        </p>
-
-        <div class="success-ref">
-          Protocolo:
-          <strong id="success-ref-num"></strong>
+          <div class="contract-meta">
+            Gerado em 14/05/2026
+          </div>
         </div>
+
+        <button class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-download"></i>
+          Baixar
+        </button>
 
       </div>
 
@@ -612,10 +261,46 @@
 
 </main>
 
-</div>
+<script>
 
-<!-- JS -->
-<script src="js/app.js"></script>
+  // DATA
+  const dateEl = document.getElementById("topbar-date");
+
+  const hoje = new Date();
+
+  dateEl.innerHTML = hoje.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  // TROCAR TELAS
+  function showView(viewName, el) {
+
+    // ESCONDE TODAS
+    document.querySelectorAll(".view").forEach(view => {
+      view.classList.add("hidden");
+    });
+
+    // MOSTRA
+    document.getElementById("view-" + viewName)
+      .classList.remove("hidden");
+
+    // NAV ACTIVE
+    document.querySelectorAll(".nav-item").forEach(item => {
+      item.classList.remove("active");
+    });
+
+    el.classList.add("active");
+
+    // TITULO
+    const title = el.querySelector("span").innerText;
+
+    document.getElementById("topbar-title").innerText = title;
+  }
+
+</script>
 
 </body>
 </html>
