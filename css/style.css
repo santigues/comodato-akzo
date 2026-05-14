@@ -541,3 +541,178 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
    REVIEW GRID (two columns for review cards)
    ============================================ */
 .review-grid > .card.col-span-2 { grid-column: 1 / -1; }
+
+/* ============================================
+   LOGIN
+============================================ */
+
+body{
+  font-family:'Poppins', sans-serif;
+}
+
+#login-screen{
+  width:100%;
+  height:100vh;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:
+  linear-gradient(
+    135deg,
+    #4c63ff,
+    #e15ad4
+  );
+}
+
+.login-card{
+  width:360px;
+  min-height:500px;
+
+  background:#fff;
+
+  border-radius:22px;
+
+  padding:60px 40px;
+
+  box-shadow:
+  0 15px 40px rgba(0,0,0,.18);
+
+  display:flex;
+  flex-direction:column;
+}
+
+.login-title{
+  text-align:center;
+
+  font-size:42px;
+  font-weight:500;
+
+  margin-bottom:70px;
+
+  color:#222;
+}
+
+.login-input-group{
+  position:relative;
+  margin-bottom:35px;
+}
+
+.login-input-group i{
+  position:absolute;
+
+  left:0;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  color:#777;
+  font-size:14px;
+}
+
+.login-input-group input{
+  width:100%;
+
+  border:none;
+  border-bottom:2px solid #888;
+
+  padding:10px 10px 10px 28px;
+
+  outline:none;
+
+  font-size:14px;
+  font-family:'Poppins', sans-serif;
+
+  transition:.3s;
+}
+
+.login-input-group input:focus{
+  border-color:#8f5bff;
+}
+
+.login-extra{
+  display:flex;
+  justify-content:flex-end;
+
+  margin-top:-15px;
+  margin-bottom:45px;
+}
+
+.login-extra a{
+  text-decoration:none;
+
+  font-size:12px;
+  color:#555;
+}
+
+.login-extra a:hover{
+  color:#8f5bff;
+}
+
+.login-btn{
+  height:50px;
+
+  border:none;
+  border-radius:30px;
+
+  background:
+  linear-gradient(
+    90deg,
+    #4c63ff,
+    #e15ad4
+  );
+
+  color:#fff;
+
+  font-size:18px;
+  font-weight:500;
+
+  cursor:pointer;
+
+  transition:.3s;
+}
+
+.login-btn:hover{
+  transform:translateY(-2px);
+
+  box-shadow:
+  0 10px 20px rgba(0,0,0,.15);
+}
+
+.login-erro{
+  background:#ffe5e5;
+  color:#d30000;
+
+  padding:12px;
+
+  border-radius:10px;
+
+  margin-bottom:18px;
+
+  font-size:13px;
+}
+
+.field-error{
+  border-color:#d32f2f !important;
+  box-shadow:0 0 0 3px rgba(211,47,47,.1);
+}
+
+.field-error-msg{
+  color:#d32f2f;
+  font-size:12px;
+  margin-top:4px;
+}
+
+@media(max-width:500px){
+
+  .login-card{
+    width:92%;
+    padding:45px 25px;
+  }
+
+  .login-title{
+    font-size:34px;
+  }
+
+}
