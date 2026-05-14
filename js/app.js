@@ -1,17 +1,22 @@
 /* ============================================
    APP.JS — Solicitação de Comodato
    ============================================ */
-
+ 
+// ── CONFIGURAÇÃO ──────────────────────────────
+// Cole aqui a URL gerada ao publicar o Apps Script como Web App:
+// Extensions > Deploy > New deployment > Web App > Copy URL
+const APPS_SCRIPT_URL = 'https://script.google.com/u/0/home/projects/11qPjgqGoDSlGr8F41kTS9If42MoWpxaWKk7zf_o82fRhyfCdOK07XWSH/edit';
+ 
 // ── Estado atual ─────────────────────────────
 let currentStep = 1;
 let selectedTipo = 'Novo';
-
+ 
 // ── Init ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setDate();
   goStep(1);
 });
-
+ 
 function setDate() {
   const el = document.getElementById('topbar-date');
   if (!el) return;
@@ -20,21 +25,16 @@ function setDate() {
     weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
   });
 }
-
+ 
 // ── Navegação entre views (sidebar) ──────────
 function showView(view, el) {
-  // esconde todas as views
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-
-  // mostra a view correta
   const target = document.getElementById('view-' + view);
   if (target) target.classList.remove('hidden');
-
-  // atualiza nav ativo
+ 
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
-
-  // atualiza título da topbar
+ 
   const titles = {
     nova:       'Nova solicitação',
     historico:  'Minhas solicitações',
@@ -43,45 +43,39 @@ function showView(view, el) {
   };
   const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = titles[view] || '';
-
+ 
   return false;
 }
-
+ 
 // ── Stepper ───────────────────────────────────
 function goStep(n) {
-  // esconde todas as screens
   document.querySelectorAll('[id^="screen-"]').forEach(s => s.classList.add('hidden'));
-
-  // mostra a screen alvo
   const target = document.getElementById('screen-' + n);
   if (target) target.classList.remove('hidden');
-
+ 
   currentStep = n;
   updateStepper(n);
-
-  // preenche revisão quando chegar na tela 4
+ 
   if (n === 4) fillReview();
-
-  // scroll ao topo do conteúdo
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
+ 
 function updateStepper(activeStep) {
   const steps = document.querySelectorAll('.step[data-step]');
   const connectors = document.querySelectorAll('.step-connector');
-
+ 
   steps.forEach(step => {
     const s = parseInt(step.dataset.step);
     step.classList.remove('active', 'done');
     if (s < activeStep)  step.classList.add('done');
     if (s === activeStep) step.classList.add('active');
   });
-
+ 
   connectors.forEach((conn, i) => {
     conn.classList.toggle('done', i < activeStep - 1);
   });
 }
-
+ 
 // ── Toggle tipo (Novo / Reativação) ───────────
 function selectToggle(el) {
   el.closest('.toggle-group').querySelectorAll('.toggle-btn')
@@ -89,7 +83,7 @@ function selectToggle(el) {
   el.classList.add('active');
   selectedTipo = el.dataset.value;
 }
-
+ 
 // ── Máscara CNPJ ──────────────────────────────
 function maskCNPJ(input) {
   let v = input.value.replace(/\D/g, '').substring(0, 14);
@@ -99,23 +93,23 @@ function maskCNPJ(input) {
   v = v.replace(/(\d{4})(\d)/, '$1-$2');
   input.value = v;
 }
-
+ 
 // ── Drop zone ─────────────────────────────────
 function dragOver(e) {
   e.preventDefault();
   document.getElementById('drop-zone').classList.add('over');
 }
-
-function dragLeave(e) {
+ 
+function dragLeave() {
   document.getElementById('drop-zone').classList.remove('over');
 }
-
+ 
 function dropFile(e) {
   e.preventDefault();
   document.getElementById('drop-zone').classList.remove('over');
   handleFiles(e.dataTransfer.files);
 }
-
+ 
 function handleFiles(files) {
   const list = document.getElementById('file-list');
   Array.from(files).forEach(file => {
@@ -130,18 +124,17 @@ function handleFiles(files) {
     list.appendChild(item);
   });
 }
-
+ 
 function formatBytes(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
-
+ 
 // ── Preencher revisão ─────────────────────────
 function fillReview() {
   const get = id => (document.getElementById(id)?.value || '').trim();
-
-  // Dados do cliente
+ 
   renderReview('review-cliente', [
     { key: 'Cód SAP',         val: get('f-sap') },
     { key: 'Tipo',            val: selectedTipo },
@@ -152,8 +145,7 @@ function fillReview() {
     { key: 'Volume 2024',     val: get('f-volume') ? get('f-volume') + ' L' : '' },
     { key: 'Média 2024',      val: get('f-media')  ? get('f-media')  + ' L/mês' : '' },
   ]);
-
-  // Dados do contrato
+ 
   renderReview('review-contrato', [
     { key: 'Razão social',    val: get('f-razao') },
     { key: 'CNPJ',            val: get('f-cnpj') },
@@ -163,8 +155,7 @@ function fillReview() {
     { key: 'Fim vigência',    val: formatDate(get('f-dtfim')) },
     { key: 'Local assinatura',val: get('f-local') },
   ]);
-
-  // Equipamento
+ 
   const valor = parseFloat(get('f-valor'));
   renderReview('review-equip', [
     { key: 'Equipamento',     val: get('f-equip') },
@@ -173,7 +164,7 @@ function fillReview() {
     { key: 'Observações',     val: get('f-obs') },
   ]);
 }
-
+ 
 function renderReview(containerId, rows) {
   const el = document.getElementById(containerId);
   if (!el) return;
@@ -184,69 +175,59 @@ function renderReview(containerId, rows) {
     </div>
   `).join('');
 }
-
+ 
 function formatDate(val) {
   if (!val) return '';
   const [y, m, d] = val.split('-');
   return `${d}/${m}/${y}`;
 }
-
+ 
 // ── Enviar solicitação ────────────────────────
 async function enviarSolicitacao() {
   const btn = document.querySelector('.btn-submit');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
-
+ 
   try {
-    // Monte o payload com todos os campos do formulário
     const payload = buildPayload();
-
-    // -------------------------------------------------------
-    // INTEGRAÇÃO COM POWER AUTOMATE
-    // Substitua a URL abaixo pela URL do seu fluxo HTTP no
-    // Power Automate (gatilho: "Quando uma solicitação HTTP
-    // é recebida").
-    //
-    // const FLOW_URL = 'https://prod-XX.westus.logic.azure.com/...';
-    // const response = await fetch(FLOW_URL, {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload),
-    // });
-    // if (!response.ok) throw new Error('Erro ao chamar o Power Automate');
-    // -------------------------------------------------------
-
-    // Simulação de delay (remova quando integrar de verdade)
-    await new Promise(r => setTimeout(r, 1800));
-
-    // Gera número de protocolo
-    const ref = '#' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
-    document.getElementById('success-ref-num').textContent = ref;
-
-    // Vai para tela de sucesso
+ 
+    // Envia os dados para o Google Apps Script (que salva no Sheets)
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      // O Apps Script não aceita application/json em CORS simples;
+      // usamos text/plain para evitar preflight e o script faz JSON.parse.
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload),
+    });
+ 
+    const result = await response.json();
+ 
+    if (!result.ok) {
+      throw new Error(result.error || 'Resposta inesperada do servidor');
+    }
+ 
+    // Exibe o protocolo retornado pelo servidor
+    document.getElementById('success-ref-num').textContent = result.protocolo;
     goStep(5);
-
+ 
   } catch (err) {
-    alert('Erro ao enviar a solicitação. Tente novamente.\n\n' + err.message);
+    alert('Erro ao enviar a solicitação. Verifique a URL do Apps Script e tente novamente.\n\n' + err.message);
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar para aprovação';
   }
 }
-
+ 
 function buildPayload() {
   const get = id => (document.getElementById(id)?.value || '').trim();
   return {
-    // Dados do cliente
-    CodSAP:          get('f-sap'),
-    TipoSolicitacao: selectedTipo,
-    Cliente:         get('f-cliente'),
-    Endereco:        get('f-endereco'),
-    Responsavel:     get('f-responsavel'),
-    LinhaProduto:    get('f-linha'),
-    Volume2024:      parseFloat(get('f-volume')) || 0,
-    Media2024:       parseFloat(get('f-media'))  || 0,
-
-    // Dados do contrato (bookmarks do Word)
+    CodSAP:               get('f-sap'),
+    TipoSolicitacao:      selectedTipo,
+    Cliente:              get('f-cliente'),
+    Endereco:             get('f-endereco'),
+    Responsavel:          get('f-responsavel'),
+    LinhaProduto:         get('f-linha'),
+    Volume2024:           parseFloat(get('f-volume')) || 0,
+    Media2024:            parseFloat(get('f-media'))  || 0,
     RazaoSocial:          get('f-razao'),
     CNPJ:                 get('f-cnpj'),
     EnderecoComodatario:  get('f-end-cod'),
@@ -254,51 +235,41 @@ function buildPayload() {
     DataInicio:           get('f-dtini'),
     DataTermino:          get('f-dtfim'),
     LocalAssinatura:      get('f-local'),
-
-    // Equipamento
-    Equipamento:     get('f-equip'),
-    Quantidade:      parseInt(get('f-qtd')) || 1,
-    ValorEstimado:   parseFloat(get('f-valor')) || 0,
-    Observacoes:     get('f-obs'),
-
-    // Metadados
-    DataEnvio:       new Date().toISOString(),
-    Status:          'Pendente',
+    Equipamento:          get('f-equip'),
+    Quantidade:           parseInt(get('f-qtd')) || 1,
+    ValorEstimado:        parseFloat(get('f-valor')) || 0,
+    Observacoes:          get('f-obs'),
+    DataEnvio:            new Date().toISOString(),
   };
 }
-
+ 
 // ── Nova solicitação ──────────────────────────
 function novaSolicitacao() {
-  // Limpa campos (exceto responsável)
   const responsavel = document.getElementById('f-responsavel')?.value;
   document.querySelectorAll('input[type=text], input[type=number], input[type=date], textarea')
     .forEach(el => { if (el.id !== 'f-responsavel') el.value = ''; });
   if (document.getElementById('f-responsavel')) {
     document.getElementById('f-responsavel').value = responsavel;
   }
-
-  // Reset selects
+ 
   document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-
-  // Reset toggle tipo
+ 
   selectedTipo = 'Novo';
   document.querySelectorAll('.toggle-btn').forEach((b, i) => {
     b.classList.toggle('active', i === 0);
   });
-
-  // Limpa lista de arquivos
+ 
   const fl = document.getElementById('file-list');
   if (fl) fl.innerHTML = '';
-
-  // Volta ao passo 1
+ 
   goStep(1);
 }
-
+ 
 // ── Filtro do histórico ───────────────────────
 function filterHistory(btn, status) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
+ 
   document.querySelectorAll('#history-body tr').forEach(row => {
     const rowStatus = row.dataset.status;
     row.style.display = (status === 'all' || rowStatus === status) ? '' : 'none';
