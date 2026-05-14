@@ -4,10 +4,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --navy:       #0d2137;
-  --navy-mid:   #112a44;
-  --navy-light: #163354;
-  --navy-hover: #1a3a5c;
+  --navy:       #2d1b69;
+  --navy-mid:   #3d1f7a;
+  --navy-light: #4a2085;
+  --navy-hover: #5a2a9e;
   --blue:       #1e6fbf;
   --blue-light: #2a85e0;
   --blue-pale:  #e8f2fc;
@@ -541,3 +541,10 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
    REVIEW GRID (two columns for review cards)
    ============================================ */
 .review-grid > .card.col-span-2 { grid-column: 1 / -1; }
+.field-error { border-color: #c62828 !important; }
+
+.field-error-msg {
+  font-size: 11px;
+  color: #c62828;
+  margin-top: 4px;
+}
