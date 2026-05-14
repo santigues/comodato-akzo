@@ -5,7 +5,7 @@
 // ── CONFIGURAÇÃO ──────────────────────────────
 // Cole aqui a URL gerada ao publicar o Apps Script como Web App:
 // Extensions > Deploy > New deployment > Web App > Copy URL
-const APPS_SCRIPT_URL = 'https://script.google.com/u/0/home/projects/11qPjgqGoDSlGr8F41kTS9If42MoWpxaWKk7zf_o82fRhyfCdOK07XWSH/edit';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5IJBgtcm6M_IGeCTP3r448PH0UASF1zz66pNilGeNwf3QQahw5vEixKKIvPwbTjw/exec';
  
 // ── Estado atual ─────────────────────────────
 let currentStep = 1;
