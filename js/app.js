@@ -187,31 +187,46 @@ async function enviarSolicitacao() {
   const btn = document.querySelector('.btn-submit');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
- 
+
   try {
     const payload = buildPayload();
- 
-    // Envia os dados para o Google Apps Script (que salva no Sheets)
-    const response = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      // O Apps Script não aceita application/json em CORS simples;
-      // usamos text/plain para evitar preflight e o script faz JSON.parse.
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-    });
- 
-    const result = await response.json();
- 
-    if (!result.ok) {
-      throw new Error(result.error || 'Resposta inesperada do servidor');
+
+    // Usa um form oculto para contornar CORS do Apps Script
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = APPS_SCRIPT_URL;
+    form.target = 'hidden-iframe';
+
+    const input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = 'data';
+    input.value = JSON.stringify(payload);
+    form.appendChild(input);
+
+    // iframe oculto para não redirecionar a página
+    let iframe = document.getElementById('hidden-iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = 'hidden-iframe';
+      iframe.id   = 'hidden-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
     }
- 
-    // Exibe o protocolo retornado pelo servidor
-    document.getElementById('success-ref-num').textContent = result.protocolo;
+
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+
+    // Aguarda 2s (o Apps Script processa em background)
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Gera protocolo local já que não conseguimos ler a resposta (CORS)
+    const ref = '#' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
+    document.getElementById('success-ref-num').textContent = ref;
     goStep(5);
- 
+
   } catch (err) {
-    alert('Erro ao enviar a solicitação. Verifique a URL do Apps Script e tente novamente.\n\n' + err.message);
+    alert('Erro ao enviar.\n\n' + err.message);
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar para aprovação';
   }
