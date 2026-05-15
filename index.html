@@ -8,8 +8,54 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+
+  <!-- SUPABASE SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════════
+     TELA DE LOGIN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+
+      <div class="login-brand">
+        <div class="brand-mark"></div>
+        <div>
+          <div class="brand-name">AkzoNobel</div>
+          <div class="brand-sub">Portal de Comodato</div>
+        </div>
+      </div>
+
+      <h2 class="login-title">Entrar</h2>
+      <p class="login-desc">Acesse com seu e-mail corporativo</p>
+
+      <div id="login-erro" class="login-erro hidden"></div>
+
+      <div class="field" style="margin-bottom:14px">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email"/>
+      </div>
+
+      <div class="field" style="margin-bottom:20px">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="fazerLogin()">
+        <i class="fa-solid fa-right-to-bracket"></i> Entrar
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════ -->
+<div id="app-shell" class="hidden">
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
@@ -43,12 +89,12 @@
   </nav>
 
   <div class="sidebar-user">
-    <div class="user-avatar">SS</div>
+    <div class="user-avatar" id="user-iniciais">--</div>
     <div class="user-info">
-      <div class="user-name">Sarah Santos</div>
-      <div class="user-role">Representante</div>
+      <div class="user-name"  id="user-nome">–</div>
+      <div class="user-role" id="user-cargo">–</div>
     </div>
-    <i class="fa-solid fa-right-from-bracket logout-icon"></i>
+    <i class="fa-solid fa-right-from-bracket logout-icon" onclick="fazerLogout()" title="Sair"></i>
   </div>
 </aside>
 
@@ -140,7 +186,7 @@
           </div>
           <div class="field">
             <label for="f-responsavel">Responsável (vendedor)</label>
-            <input type="text" id="f-responsavel" value="João Silva" autocomplete="off"/>
+            <input type="text" id="f-responsavel" autocomplete="off"/>
           </div>
           <div class="field">
             <label for="f-linha">Linha de produto <span class="required">*</span></label>
@@ -238,7 +284,7 @@
             <input type="date" id="f-dtfim"/>
           </div>
           <div class="field">
-            <label for="f-local">Local de assinatura</label>
+            <label for="f-local">Local de assinatura <span class="required">*</span></label>
             <input type="text" id="f-local" placeholder="Ex: São Paulo / SP" autocomplete="off"/>
           </div>
         </div>
@@ -272,7 +318,7 @@
             <input type="text" id="f-equip" placeholder="Ex: Cabine de pintura — modelo XYZ 2000" autocomplete="off"/>
           </div>
           <div class="field">
-            <label for="f-qtd">Quantidade</label>
+            <label for="f-qtd">Quantidade <span class="required">*</span></label>
             <input type="number" id="f-qtd" placeholder="1" min="1" value="1"/>
           </div>
           <div class="field">
@@ -419,30 +465,7 @@
           </tr>
         </thead>
         <tbody id="history-body">
-          <tr data-status="Aprovado">
-            <td><span class="mono">#2025-001</span></td>
-            <td>Oficina Central Ltda</td>
-            <td>Cabine de Pintura XYZ</td>
-            <td>10/05/2025</td>
-            <td><span class="status-badge aprovado">Aprovado</span></td>
-            <td><button class="btn-icon" title="Ver contrato"><i class="fa-solid fa-file-pdf"></i></button></td>
-          </tr>
-          <tr data-status="Pendente">
-            <td><span class="mono">#2025-002</span></td>
-            <td>Auto Peças São Paulo</td>
-            <td>Elevador Hidráulico</td>
-            <td>02/05/2025</td>
-            <td><span class="status-badge pendente">Pendente</span></td>
-            <td><button class="btn-icon" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button></td>
-          </tr>
-          <tr data-status="Reprovado">
-            <td><span class="mono">#2025-003</span></td>
-            <td>Funilaria Boa Vista</td>
-            <td>Compressor de Ar</td>
-            <td>18/04/2025</td>
-            <td><span class="status-badge reprovado">Reprovado</span></td>
-            <td><button class="btn-icon" title="Ver motivo"><i class="fa-solid fa-circle-info"></i></button></td>
-          </tr>
+          <tr><td colspan="6" style="text-align:center;color:var(--text-3);padding:24px">Faça login para ver suas solicitações.</td></tr>
         </tbody>
       </table>
     </div>
@@ -488,6 +511,7 @@
   </div>
 
 </main>
+</div><!-- /app-shell -->
 
 <script src="js/app.js"></script>
 </body>
