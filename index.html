@@ -15,18 +15,14 @@
 <div id="login-screen">
   <div class="login-bg">
     <div class="login-card">
-
       <h2 class="login-title">Login</h2>
-
       <div id="login-erro" class="login-erro hidden"></div>
-
       <div class="login-field">
         <div class="login-input-wrap">
           <i class="fa-regular fa-user"></i>
           <input type="email" id="login-email" placeholder="Coloque seu e-mail" autocomplete="email"/>
         </div>
       </div>
-
       <div class="login-field">
         <div class="login-input-wrap">
           <i class="fa-solid fa-lock"></i>
@@ -34,7 +30,6 @@
         </div>
         <div class="login-forgot"><a href="#">Esqueceu sua senha?</a></div>
       </div>
-
       <button class="login-btn" onclick="fazerLogin()">Entrar</button>
     </div>
   </div>
@@ -97,7 +92,6 @@
 
   <!-- VIEW: NOVA SOLICITAÇÃO -->
   <div class="view" id="view-nova">
-
     <!-- STEPPER -->
     <div class="stepper" id="stepper">
       <div class="step active" data-step="1">
@@ -238,7 +232,7 @@
         <div class="form-grid col-2">
           <div class="field col-span-2">
             <label for="f-razao">Razão social <span class="required">*</span></label>
-            <input type="text" id="f-razao" placeholder="Ex: Oficina do Pedro Ltda" autocomplete="off"/>
+                        <input type="text" id="f-razao" placeholder="Ex: Oficina do Pedro Ltda" autocomplete="off"/>
           </div>
           <div class="field">
             <label for="f-cnpj">CNPJ <span class="required">*</span></label>
@@ -421,7 +415,6 @@
         </div>
       </div>
     </div>
-
   </div><!-- /view-nova -->
 
   <!-- VIEW: HISTÓRICO -->
@@ -430,7 +423,6 @@
       <h2 class="screen-title">Minhas solicitações</h2>
       <p class="screen-desc">Acompanhe o status de todas as suas solicitações.</p>
     </div>
-
     <div class="card">
       <div class="history-filters">
         <button class="filter-btn active" onclick="filterHistory(this,'all')">Todas</button>
@@ -438,7 +430,6 @@
         <button class="filter-btn" onclick="filterHistory(this,'Aprovado')">Aprovadas</button>
         <button class="filter-btn" onclick="filterHistory(this,'Reprovado')">Reprovadas</button>
       </div>
-
       <table class="history-table">
         <thead>
           <tr>
@@ -451,30 +442,7 @@
           </tr>
         </thead>
         <tbody id="history-body">
-          <tr data-status="Aprovado">
-            <td><span class="mono">#2025-001</span></td>
-            <td>Oficina Central Ltda</td>
-            <td>Cabine de Pintura XYZ</td>
-            <td>10/05/2025</td>
-            <td><span class="status-badge aprovado">Aprovado</span></td>
-            <td><button class="btn-icon" title="Ver contrato"><i class="fa-solid fa-file-pdf"></i></button></td>
-          </tr>
-          <tr data-status="Pendente">
-            <td><span class="mono">#2025-002</span></td>
-            <td>Auto Peças São Paulo</td>
-            <td>Elevador Hidráulico</td>
-            <td>02/05/2025</td>
-            <td><span class="status-badge pendente">Pendente</span></td>
-            <td><button class="btn-icon" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button></td>
-          </tr>
-          <tr data-status="Reprovado">
-            <td><span class="mono">#2025-003</span></td>
-            <td>Funilaria Boa Vista</td>
-            <td>Compressor de Ar</td>
-            <td>18/04/2025</td>
-            <td><span class="status-badge reprovado">Reprovado</span></td>
-            <td><button class="btn-icon" title="Ver motivo"><i class="fa-solid fa-circle-info"></i></button></td>
-          </tr>
+          <!-- Dados carregados dinamicamente -->
         </tbody>
       </table>
     </div>
@@ -486,16 +454,8 @@
       <h2 class="screen-title">Aguardando aprovação</h2>
       <p class="screen-desc">Solicitações enviadas e aguardando decisão do aprovador.</p>
     </div>
-    <div class="card">
-      <div class="pending-item">
-        <div class="pending-icon"><i class="fa-solid fa-clock"></i></div>
-        <div class="pending-info">
-          <div class="pending-title">Auto Peças São Paulo — Elevador Hidráulico</div>
-          <div class="pending-meta">Protocolo <span class="mono">#2025-002</span> • Enviado em 02/05/2025</div>
-          <div class="pending-approver">Aguardando aprovação de <strong>Maria Santos (Gerente Regional)</strong></div>
-        </div>
-        <div class="pending-time">11 dias</div>
-      </div>
+    <div class="card" id="pending-list">
+      <!-- Dados carregados dinamicamente -->
     </div>
   </div>
 
@@ -505,22 +465,12 @@
       <h2 class="screen-title">Contratos gerados</h2>
       <p class="screen-desc">Contratos aprovados e gerados automaticamente pelo sistema.</p>
     </div>
-    <div class="card">
-      <div class="contract-item">
-        <div class="contract-icon"><i class="fa-solid fa-file-word"></i></div>
-        <div class="contract-info">
-          <div class="contract-name">Contrato_Comodato_Oficina_Central.docx</div>
-          <div class="contract-meta">Oficina Central Ltda • Gerado em 12/05/2025</div>
-        </div>
-        <button class="btn btn-ghost btn-sm">
-          <i class="fa-solid fa-download"></i> Baixar
-        </button>
-      </div>
+    <div class="card" id="contracts-list">
+      <!-- Dados carregados dinamicamente -->
     </div>
   </div>
 
 </main>
-
 </div><!-- /app-shell -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
