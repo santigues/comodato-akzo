@@ -1,513 +1,306 @@
 /* ============================================
-   APP.JS — Solicitação de Comodato AkzoNobel
+   APP.JS — Solicitação de Comodato
    ============================================ */
 
-// ── SUPABASE ──────────────────────────────────
-const SUPABASE_URL = 'https://ydpnqohphxnueudydjbg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkcG5xb2hwaHhudWV1ZHlkamJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ4OTUsImV4cCI6MjA5NDQyMDg5NX0.y0_Fs3jcXDI0ov-CWTALcmUOHYQ4XeEDwKEaNiUVeLc';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ── Estado ────────────────────────────────────
+// ── Estado atual ─────────────────────────────
 let currentStep = 1;
 let selectedTipo = 'Novo';
-let usuarioLogado = null;
-let files = [];
 
 // ── Init ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   setDate();
-  mostrarLogin();
-  carregarHistorico();
+  goStep(1);
 });
-
-// ══════════════════════════════════════════════
-// UTILITÁRIOS
-// ══════════════════════════════════════════════
 
 function setDate() {
   const el = document.getElementById('topbar-date');
   if (!el) return;
-  el.textContent = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
+  const now = new Date();
+  el.textContent = now.toLocaleDateString('pt-BR', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
   });
 }
 
-function maskCNPJ(input) {
-  let value = input.value.replace(/\D/g, '');
-  value = value.replace(/(\d{2})(\d)/, '$1.$2');
-  value = value.replace(/(\d{3})(\d)/, '$1.$2');
-  value = value.replace(/(\d{3})(\d)/, '$1/$2');
-  value = value.replace(/(\d{4})(\d)/, '$1-$2');
-  input.value = value;
-}
-
-// ══════════════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════════════
-
-function mostrarLogin() {
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('app-shell').classList.add('hidden');
-}
-
-async function fazerLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value;
-  const erro = document.getElementById('login-erro');
-
-  erro.classList.add('hidden');
-
-  if (!email || !senha) {
-    erro.textContent = 'Preencha o e-mail e senha.';
-    erro.classList.remove('hidden');
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password: senha
-  });
-
-  if (error) {
-    erro.textContent = 'E-mail ou senha incorretos.';
-    erro.classList.remove('hidden');
-    return;
-  }
-
-  const user = data.user;
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
-  if (profileError || !profile) {
-    erro.textContent = 'Perfil do usuário não encontrado.';
-    erro.classList.remove('hidden');
-    return;
-  }
-
-  usuarioLogado = {
-    id: user.id,
-    email: user.email,
-    nome: profile.nome,
-    cargo: profile.cargo,
-    gerente_email: profile.gerente_email,
-    lider_email: profile.lider_email
-  };
-
-  document.getElementById('user-nome').textContent = profile.nome;
-  document.getElementById('user-cargo').textContent = profile.cargo;
-  document.getElementById('user-iniciais').textContent = 
-    profile.nome.split(' ').map(n => n[0]).join('').substring(0, 2);
-
-  document.getElementById('f-responsavel').value = profile.nome;
-
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app-shell').classList.remove('hidden');
-  goStep(1);
-}
-
-async function fazerLogout() {
-  await supabase.auth.signOut();
-  usuarioLogado = null;
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-senha').value = '';
-  mostrarLogin();
-}
-
-// ══════════════════════════════════════════════
-// NAVEGAÇÃO
-// ══════════════════════════════════════════════
-
+// ── Navegação entre views (sidebar) ──────────
 function showView(view, el) {
+  // esconde todas as views
   document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+
+  // mostra a view correta
   const target = document.getElementById('view-' + view);
   if (target) target.classList.remove('hidden');
 
+  // atualiza nav ativo
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
 
+  // atualiza título da topbar
   const titles = {
-    nova: 'Nova solicitação',
-    historico: 'Minhas solicitações',
+    nova:       'Nova solicitação',
+    historico:  'Minhas solicitações',
     aguardando: 'Aguardando aprovação',
-    contratos: 'Contratos gerados'
+    contratos:  'Contratos gerados',
   };
-
   const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = titles[view] || '';
 
   return false;
 }
 
-// ══════════════════════════════════════════════
-// STEPPER
-// ══════════════════════════════════════════════
-
+// ── Stepper ───────────────────────────────────
 function goStep(n) {
-  if (n > currentStep && !validarStep(currentStep)) return;
-
+  // esconde todas as screens
   document.querySelectorAll('[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+
+  // mostra a screen alvo
   const target = document.getElementById('screen-' + n);
   if (target) target.classList.remove('hidden');
 
   currentStep = n;
   updateStepper(n);
 
+  // preenche revisão quando chegar na tela 4
   if (n === 4) fillReview();
 
+  // scroll ao topo do conteúdo
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateStepper(activeStep) {
-  document.querySelectorAll('.step[data-step]').forEach(step => {
+  const steps = document.querySelectorAll('.step[data-step]');
+  const connectors = document.querySelectorAll('.step-connector');
+
+  steps.forEach(step => {
     const s = parseInt(step.dataset.step);
     step.classList.remove('active', 'done');
-    if (s < activeStep) step.classList.add('done');
+    if (s < activeStep)  step.classList.add('done');
     if (s === activeStep) step.classList.add('active');
   });
 
-  document.querySelectorAll('.step-connector').forEach((conn, i) => {
+  connectors.forEach((conn, i) => {
     conn.classList.toggle('done', i < activeStep - 1);
   });
 }
 
-// ══════════════════════════════════════════════
-// TOGGLES E SELECTS
-// ══════════════════════════════════════════════
-
-function selectToggle(btn) {
-  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedTipo = btn.dataset.value;
+// ── Toggle tipo (Novo / Reativação) ───────────
+function selectToggle(el) {
+  el.closest('.toggle-group').querySelectorAll('.toggle-btn')
+    .forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedTipo = el.dataset.value;
 }
 
-// ══════════════════════════════════════════════
-// VALIDAÇÃO
-// ══════════════════════════════════════════════
-
-const OBRIGATORIOS = {
-  1: [
-    { id: 'f-sap', label: 'Cód SAP' },
-    { id: 'f-cliente', label: 'Nome do cliente' },
-    { id: 'f-linha', label: 'Linha de produto' },
-  ],
-  2: [
-    { id: 'f-razao', label: 'Razão social' },
-    { id: 'f-cnpj', label: 'CNPJ' },
-    { id: 'f-end-cod', label: 'Endereço do comodatário' },
-    { id: 'f-contato', label: 'Contato' },
-    { id: 'f-dtini', label: 'Início de vigência' },
-    { id: 'f-dtfim', label: 'Fim de vigência' },
-  ],
-  3: [
-    { id: 'f-equip', label: 'Equipamento' },
-  ],
-};
-
-function validarStep(step) {
-  const campos = OBRIGATORIOS[step];
-  if (!campos) return true;
-
-  let valido = true;
-
-  // Limpa erros anteriores
-  campos.forEach(({ id }) => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('field-error');
-    const hint = document.getElementById('err-' + id);
-    if (hint) hint.remove();
-  });
-
-  // Valida campos
-  campos.forEach(({ id, label }) => {
-    const el = document.getElementById(id);
-    if (!el || el.value.trim()) return;
-
-    el.classList.add('field-error');
-    const msg = document.createElement('div');
-    msg.id = 'err-' + id;
-    msg.className = 'field-error-msg';
-    msg.textContent = `${label} é obrigatório`;
-    el.parentElement.appendChild(msg);
-    valido = false;
-  });
-
-  if (!valido) {
-    const primeiro = document.querySelector('.field-error');
-    if (primeiro) {
-      primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }
-
-  return valido;
+// ── Máscara CNPJ ──────────────────────────────
+function maskCNPJ(input) {
+  let v = input.value.replace(/\D/g, '').substring(0, 14);
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  input.value = v;
 }
 
-// ══════════════════════════════════════════════
-// ARQUIVOS
-// ══════════════════════════════════════════════
-
+// ── Drop zone ─────────────────────────────────
 function dragOver(e) {
   e.preventDefault();
-  e.currentTarget.classList.add('drag-over');
+  document.getElementById('drop-zone').classList.add('over');
 }
 
 function dragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
+  document.getElementById('drop-zone').classList.remove('over');
 }
 
 function dropFile(e) {
   e.preventDefault();
-  e.currentTarget.classList.remove('drag-over');
+  document.getElementById('drop-zone').classList.remove('over');
   handleFiles(e.dataTransfer.files);
 }
 
-function handleFiles(fileList) {
-  for (let file of Array.from(fileList)) {
-    if (file.size > 10 * 1024 * 1024) {
-      alert('Arquivo muito grande! Máximo 10MB.');
-      continue;
-    }
-    files.push(file);
-  }
-  updateFileList();
-}
-
-function updateFileList() {
+function handleFiles(files) {
   const list = document.getElementById('file-list');
-  list.innerHTML = '';
-  files.forEach((file, i) => {
-    const div = document.createElement('div');
-    div.className = 'file-item';
-    div.innerHTML = `
+  Array.from(files).forEach(file => {
+    const item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = `
+      <i class="fa-solid fa-paperclip"></i>
       <span>${file.name}</span>
-      <button onclick="removerArquivo(${i})" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+      <span style="color:var(--text-3);font-size:11px;margin-left:4px">${formatBytes(file.size)}</span>
+      <i class="fa-solid fa-xmark file-remove" onclick="this.parentElement.remove()"></i>
     `;
-    list.appendChild(div);
+    list.appendChild(item);
   });
 }
 
-function removerArquivo(index) {
-  files.splice(index, 1);
-  updateFileList();
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-// ══════════════════════════════════════════════
-// REVISÃO
-// ══════════════════════════════════════════════
-
+// ── Preencher revisão ─────────────────────────
 function fillReview() {
-  document.getElementById('review-cliente').innerHTML = `
-    <div class="review-item"><strong>Cliente:</strong> ${document.getElementById('f-cliente').value}</div>
-    <div class="review-item"><strong>SAP:</strong> ${document.getElementById('f-sap').value}</div>
-    <div class="review-item"><strong>Tipo:</strong> ${selectedTipo}</div>
-    <div class="review-item"><strong>Linha:</strong> ${document.getElementById('f-linha').value}</div>
-  `;
+  const get = id => (document.getElementById(id)?.value || '').trim();
 
-  document.getElementById('review-contrato').innerHTML = `
-    <div class="review-item"><strong>Razão social:</strong> ${document.getElementById('f-razao').value}</div>
-    <div class="review-item"><strong>CNPJ:</strong> ${document.getElementById('f-cnpj').value}</div>
-    <div class="review-item"><strong>Período:</strong> ${document.getElementById('f-dtini').value} a ${document.getElementById('f-dtfim').value}</div>
-  `;
+  // Dados do cliente
+  renderReview('review-cliente', [
+    { key: 'Cód SAP',         val: get('f-sap') },
+    { key: 'Tipo',            val: selectedTipo },
+    { key: 'Cliente',         val: get('f-cliente') },
+    { key: 'Endereço',        val: get('f-endereco') },
+    { key: 'Responsável',     val: get('f-responsavel') },
+    { key: 'Linha de produto',val: get('f-linha') },
+    { key: 'Volume 2024',     val: get('f-volume') ? get('f-volume') + ' L' : '' },
+    { key: 'Média 2024',      val: get('f-media')  ? get('f-media')  + ' L/mês' : '' },
+  ]);
 
-  document.getElementById('review-equip').innerHTML = `
-    <div class="review-item"><strong>Equipamento:</strong> ${document.getElementById('f-equip').value}</div>
-    <div class="review-item"><strong>Quantidade:</strong> ${document.getElementById('f-qtd').value}</div>
-    <div class="review-item"><strong>Valor:</strong> R$ ${parseFloat(document.getElementById('f-valor').value || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-    ${document.getElementById('f-obs').value ? `<div class="review-item"><strong>Obs:</strong> ${document.getElementById('f-obs').value}</div>` : ''}
-    ${files.length ? `<div class="review-item"><strong>Anexos:</strong> ${files.length} arquivo(s)</div>` : ''}
-  `;
+  // Dados do contrato
+  renderReview('review-contrato', [
+    { key: 'Razão social',    val: get('f-razao') },
+    { key: 'CNPJ',            val: get('f-cnpj') },
+    { key: 'Endereço',        val: get('f-end-cod') },
+    { key: 'Contato',         val: get('f-contato') },
+    { key: 'Início vigência', val: formatDate(get('f-dtini')) },
+    { key: 'Fim vigência',    val: formatDate(get('f-dtfim')) },
+    { key: 'Local assinatura',val: get('f-local') },
+  ]);
+
+  // Equipamento
+  const valor = parseFloat(get('f-valor'));
+  renderReview('review-equip', [
+    { key: 'Equipamento',     val: get('f-equip') },
+    { key: 'Quantidade',      val: get('f-qtd') },
+    { key: 'Valor estimado',  val: !isNaN(valor) && valor > 0 ? 'R$ ' + valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '' },
+    { key: 'Observações',     val: get('f-obs') },
+  ]);
 }
 
-// ══════════════════════════════════════════════
-// ENVIO
-// ══════════════════════════════════════════════
-
-function buildPayload() {
-  return {
-    Cliente: document.getElementById('f-cliente').value,
-    SAP: document.getElementById('f-sap').value,
-    Tipo: selectedTipo,
-    Linha: document.getElementById('f-linha').value,
-    RazaoSocial: document.getElementById('f-razao').value,
-    CNPJ: document.getElementById('f-cnpj').value,
-    EnderecoComodatario: document.getElementById('f-end-cod').value,
-    Contato: document.getElementById('f-contato').value,
-    DataInicio: document.getElementById('f-dtini').value,
-    DataFim: document.getElementById('f-dtfim').value,
-    LocalAssinatura: document.getElementById('f-local').value,
-    Equipamento: document.getElementById('f-equip').value,
-    Quantidade: document.getElementById('f-qtd').value,
-    Valor: document.getElementById('f-valor').value,
-    Observacoes: document.getElementById('f-obs').value,
-    Volume2024: document.getElementById('f-volume').value,
-    Media2024: document.getElementById('f-media').value,
-    Responsavel: document.getElementById('f-responsavel').value
-  };
+function renderReview(containerId, rows) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = rows.map(({ key, val }) => `
+    <div class="review-row">
+      <span class="review-key">${key}</span>
+      <span class="review-val${!val ? ' empty' : ''}">${val || 'Não informado'}</span>
+    </div>
+  `).join('');
 }
 
+function formatDate(val) {
+  if (!val) return '';
+  const [y, m, d] = val.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ── Enviar solicitação ────────────────────────
 async function enviarSolicitacao() {
-  if (!validarStep(4)) return;
-
   const btn = document.querySelector('.btn-submit');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
   try {
+    // Monte o payload com todos os campos do formulário
     const payload = buildPayload();
-    const protocolo = `#${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
 
-    const { error } = await supabase.from('solicitacoes').insert([{
-      usuario_id: usuarioLogado.id,
-      protocolo,
-      cliente: payload.Cliente,
-      cnpj: payload.CNPJ,
-      sap: payload.SAP,
-      tipo: payload.Tipo,
-      linha: payload.Linha,
-      razao_social: payload.RazaoSocial,
-      endereco_comodatario: payload.EnderecoComodatario,
-      contato: payload.Contato,
-      data_inicio: payload.DataInicio,
-      data_fim: payload.DataFim,
-      local_assinatura: payload.LocalAssinatura,
-      equipamento: payload.Equipamento,
-      quantidade: payload.Quantidade,
-      valor: payload.Valor,
-      observacoes: payload.Observacoes,
-      volume_2024: payload.Volume2024,
-      media_2024: payload.Media2024,
-      responsavel: payload.Responsavel,
-      status: 'Pendente',
-      aprovado_por: usuarioLogado.gerente_email,
-      data_envio: new Date().toISOString()
-    }]);
+    // -------------------------------------------------------
+    // INTEGRAÇÃO COM POWER AUTOMATE
+    // Substitua a URL abaixo pela URL do seu fluxo HTTP no
+    // Power Automate (gatilho: "Quando uma solicitação HTTP
+    // é recebida").
+    //
+    // const FLOW_URL = 'https://prod-XX.westus.logic.azure.com/...';
+    // const response = await fetch(FLOW_URL, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(payload),
+    // });
+    // if (!response.ok) throw new Error('Erro ao chamar o Power Automate');
+    // -------------------------------------------------------
 
-    if (error) throw error;
+    // Simulação de delay (remova quando integrar de verdade)
+    await new Promise(r => setTimeout(r, 1800));
 
-    await new Promise(r => setTimeout(r, 1200));
-    document.getElementById('success-ref-num').textContent = protocolo;
+    // Gera número de protocolo
+    const ref = '#' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
+    document.getElementById('success-ref-num').textContent = ref;
+
+    // Vai para tela de sucesso
     goStep(5);
 
   } catch (err) {
-    alert('Erro ao enviar.\n\n' + err.message);
+    alert('Erro ao enviar a solicitação. Tente novamente.\n\n' + err.message);
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar para aprovação';
   }
 }
 
+function buildPayload() {
+  const get = id => (document.getElementById(id)?.value || '').trim();
+  return {
+    // Dados do cliente
+    CodSAP:          get('f-sap'),
+    TipoSolicitacao: selectedTipo,
+    Cliente:         get('f-cliente'),
+    Endereco:        get('f-endereco'),
+    Responsavel:     get('f-responsavel'),
+    LinhaProduto:    get('f-linha'),
+    Volume2024:      parseFloat(get('f-volume')) || 0,
+    Media2024:       parseFloat(get('f-media'))  || 0,
+
+    // Dados do contrato (bookmarks do Word)
+    RazaoSocial:          get('f-razao'),
+    CNPJ:                 get('f-cnpj'),
+    EnderecoComodatario:  get('f-end-cod'),
+    ContatoNomeEmailTel:  get('f-contato'),
+    DataInicio:           get('f-dtini'),
+    DataTermino:          get('f-dtfim'),
+    LocalAssinatura:      get('f-local'),
+
+    // Equipamento
+    Equipamento:     get('f-equip'),
+    Quantidade:      parseInt(get('f-qtd')) || 1,
+    ValorEstimado:   parseFloat(get('f-valor')) || 0,
+    Observacoes:     get('f-obs'),
+
+    // Metadados
+    DataEnvio:       new Date().toISOString(),
+    Status:          'Pendente',
+  };
+}
+
+// ── Nova solicitação ──────────────────────────
 function novaSolicitacao() {
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
-    else el.value = '';
-  });
-  files = [];
+  // Limpa campos (exceto responsável)
+  const responsavel = document.getElementById('f-responsavel')?.value;
+  document.querySelectorAll('input[type=text], input[type=number], input[type=date], textarea')
+    .forEach(el => { if (el.id !== 'f-responsavel') el.value = ''; });
+  if (document.getElementById('f-responsavel')) {
+    document.getElementById('f-responsavel').value = responsavel;
+  }
+
+  // Reset selects
+  document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+
+  // Reset toggle tipo
   selectedTipo = 'Novo';
-  currentStep = 1;
-  updateFileList();
+  document.querySelectorAll('.toggle-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === 0);
+  });
+
+  // Limpa lista de arquivos
+  const fl = document.getElementById('file-list');
+  if (fl) fl.innerHTML = '';
+
+  // Volta ao passo 1
   goStep(1);
 }
 
-// ══════════════════════════════════════════════
-// HISTÓRICO
-// ══════════════════════════════════════════════
-
-async function carregarHistorico() {
-  if (!usuarioLogado) return;
-
-  const { data } = await supabase
-    .from('solicitacoes')
-    .select('*')
-    .eq('usuario_id', usuarioLogado.id)
-    .order('data_envio', { ascending: false });
-
-  if (data && data.length) {
-    renderHistorico(data);
-    renderAguardando(data.filter(s => s.status === 'Pendente'));
-    renderContratos(data.filter(s => s.status === 'Aprovado'));
-  }
-}
-
-function renderHistorico(data) {
-  const tbody = document.getElementById('history-body');
-  tbody.innerHTML = data.map(solic => `
-    <tr data-status="${solic.status}">
-      <td><span class="mono">${solic.protocolo}</span></td>
-      <td>${solic.cliente}</td>
-      <td>${solic.equipamento}</td>
-      <td>${new Date(solic.data_envio).toLocaleDateString('pt-BR')}</td>
-      <td><span class="status-badge ${solic.status.toLowerCase()}">${solic.status}</span></td>
-      <td><button class="btn-icon" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button></td>
-    </tr>
-  `).join('');
-}
-
+// ── Filtro do histórico ───────────────────────
 function filterHistory(btn, status) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
-  document.querySelectorAll('#history-body tr').forEach(tr => {
-    tr.style.display = status === 'all' || tr.dataset.status === status ? '' : 'none';
+  document.querySelectorAll('#history-body tr').forEach(row => {
+    const rowStatus = row.dataset.status;
+    row.style.display = (status === 'all' || rowStatus === status) ? '' : 'none';
   });
 }
-
-function renderAguardando(data) {
-  const container = document.getElementById('pending-list');
-  if (!data.length) {
-    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-clock"></i><p>Nenhuma solicitação aguardando aprovação</p></div>';
-    return;
-  }
-  container.innerHTML = data.map(s => `
-    <div class="pending-item">
-      <div class="pending-icon"><i class="fa-solid fa-clock"></i></div>
-      <div class="pending-info">
-        <div class="pending-title">${s.cliente} — ${s.equipamento}</div>
-        <div class="pending-meta">Protocolo <span class="mono">${s.protocolo}</span> • Enviado em ${new Date(s.data_envio).toLocaleDateString('pt-BR')}</div>
-        <div class="pending-approver">Aguardando aprovação de <strong>${s.aprovado_por}</strong></div>
-      </div>
-      <div class="pending-time">${Math.floor((new Date() - new Date(s.data_envio)) / (1000*60*60*24))} dias</div>
-    </div>
-  `).join('');
-}
-
-function renderContratos(data) {
-  const container = document.getElementById('contracts-list');
-  if (!data.length) {
-    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-file-word"></i><p>Nenhum contrato gerado</p></div>';
-    return;
-  }
-  container.innerHTML = data.map(s => `
-    <div class="contract-item">
-      <div class="contract-icon"><i class="fa-solid fa-file-word"></i></div>
-      <div class="contract-info">
-        <div class="contract-name">Contrato_Comodato_${s.cliente.replace(/[^a-zA-Z0-9]/g,'_')}.docx</div>
-        <div class="contract-meta">${s.cliente} • Gerado em ${new Date(s.data_envio).toLocaleDateString('pt-BR')}</div>
-      </div>
-      <button class="btn btn-ghost btn-sm">
-        <i class="fa-solid fa-download"></i> Baixar
-      </button>
-    </div>
-  `).join('');
-}
-
-// ══════════════════════════════════════════════
-// EVENTOS GLOBAIS
-// ══════════════════════════════════════════════
-
-document.addEventListener('keydown', e => {
-  const loginVisivel = !document.getElementById('login-screen').classList.contains('hidden');
-  if (e.key === 'Enter' && loginVisivel) fazerLogin();
-});
-
-document.addEventListener('input', e => {
-  if (e.target.classList.contains('field-error')) {
-    e.target.classList.remove('field-error');
-    const msg = document.getElementById('err-' + e.target.id);
-    if (msg) msg.remove();
-  }
-});
