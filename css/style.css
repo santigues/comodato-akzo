@@ -541,10 +541,3 @@ html, body { height: 100%; font-family: var(--font); background: var(--bg); colo
    REVIEW GRID (two columns for review cards)
    ============================================ */
 .review-grid > .card.col-span-2 { grid-column: 1 / -1; }
-.field-error { border-color: #c62828 !important; }
-
-.field-error-msg {
-  font-size: 11px;
-  color: #c62828;
-  margin-top: 4px;
-}
