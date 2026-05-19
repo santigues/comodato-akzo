@@ -2,21 +2,45 @@
    APP.JS — Solicitação de Comodato
    ============================================ */
 
+// Guard para evitar carregar duas vezes
+if (window.__APP_LOADED__) {
+  console.log('app.js já foi carregado, ignorando');
+} else {
+
+// Aguarda o Supabase estar disponível
+if (!window.supabase) {
+  console.error('Supabase não carregado');
+  throw new Error('Supabase library must be loaded first');
+}
+
 // ── SUPABASE CONFIG ───────────────────────────
 const SUPABASE_URL = 'https://ydpnqohphxnueudydjbg.supabase.co';  // ← substitua
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkcG5xb2hwaHhudWV1ZHlkamJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NDQ4OTUsImV4cCI6MjA5NDQyMDg5NX0.y0_Fs3jcXDI0ov-CWTALcmUOHYQ4XeEDwKEaNiUVeLc';                      // ← substitua
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+if (!window.supabase_instance) {
+  window.supabase_instance = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+const supabase = window.supabase_instance;
 
 // ── Estado ────────────────────────────────────
 let currentStep   = 1;
 let selectedTipo  = 'Novo';
 let usuarioLogado = null;
+let registroEmAndamento = null;
 
 // ── Init ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+console.log('✓ app.js carregado');
+
+function initApp() {
+  console.log('✓ App inicializando');
   setDate();
   mostrarLogin();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function setDate() {
   const el = document.getElementById('topbar-date');
@@ -27,11 +51,33 @@ function setDate() {
 }
 
 // ══════════════════════════════════════════════
-//  LOGIN
+//  LOGIN / CADASTRO
 // ══════════════════════════════════════════════
 function mostrarLogin() {
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('app-shell').classList.add('hidden');
+  document.getElementById('login-form').classList.remove('hidden');
+  document.getElementById('cadastro-form').classList.add('hidden');
+  document.getElementById('verificacao-form').classList.add('hidden');
+  document.getElementById('login-erro').classList.add('hidden');
+}
+
+function mostraLogin() {
+  document.getElementById('login-form').classList.remove('hidden');
+  document.getElementById('cadastro-form').classList.add('hidden');
+  document.getElementById('verificacao-form').classList.add('hidden');
+  document.getElementById('login-erro').classList.add('hidden');
+}
+
+function mostraRegistro() {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('cadastro-form').classList.remove('hidden');
+  document.getElementById('verificacao-form').classList.add('hidden');
+  document.getElementById('login-erro').classList.add('hidden');
+  document.getElementById('cadastro-nome').value = '';
+  document.getElementById('cadastro-cargo').value = '';
+  document.getElementById('cadastro-email').value = '';
+  document.getElementById('cadastro-senha').value = '';
 }
 
 async function fazerLogin() {
@@ -54,18 +100,27 @@ async function fazerLogin() {
     return;
   }
 
-  const { data: perfil } = await supabase
+  const { data: perfil, error: erroP } = await supabase
     .from('usuarios')
-    .select('nome, cargo, iniciais')
-    .eq('id', data.user.id)
+    .select('Nome, Cargo, Iniciais')
+    .eq('ID', data.user.id)
     .single();
 
-  usuarioLogado = { email: data.user.id_email || email, ...perfil };
+  console.log('Resultado da busca:', { perfil, erroP });
 
-  document.getElementById('user-nome').textContent     = perfil.nome;
-  document.getElementById('user-cargo').textContent    = perfil.cargo;
-  document.getElementById('user-iniciais').textContent = perfil.iniciais;
-  document.getElementById('f-responsavel').value       = perfil.nome;
+  // Se houver erro ao buscar (tabela não existe, sem dados), usa valores padrão
+  const perfilFinal = (!erroP && perfil) ? perfil : {
+    Nome: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
+    Cargo: 'Usuário',
+    Iniciais: email.substring(0, 2).toUpperCase()
+  };
+
+  usuarioLogado = { email: data.user.email || email, ...perfilFinal };
+
+  document.getElementById('user-nome').textContent     = perfilFinal.Nome;
+  document.getElementById('user-cargo').textContent    = perfilFinal.Cargo;
+  document.getElementById('user-iniciais').textContent = perfilFinal.Iniciais;
+  document.getElementById('f-responsavel').value       = perfilFinal.Nome;
 
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app-shell').classList.remove('hidden');
@@ -80,6 +135,128 @@ async function fazerLogout() {
   document.getElementById('login-email').value = '';
   document.getElementById('login-senha').value = '';
   mostrarLogin();
+}
+
+async function fazerCadastro() {
+  const nome = document.getElementById('cadastro-nome').value.trim();
+  const cargo = document.getElementById('cadastro-cargo').value.trim();
+  const email = document.getElementById('cadastro-email').value.trim();
+  const senha = document.getElementById('cadastro-senha').value;
+  const erro = document.getElementById('login-erro');
+  erro.classList.add('hidden');
+
+  if (!nome || !cargo || !email || !senha) {
+    erro.textContent = 'Preencha todos os campos.';
+    erro.classList.remove('hidden');
+    return;
+  }
+
+  if (senha.length < 6) {
+    erro.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+    erro.classList.remove('hidden');
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({ email, password: senha });
+
+  if (error) {
+    erro.textContent = error.message || 'Erro ao cadastrar.';
+    erro.classList.remove('hidden');
+    return;
+  }
+
+  registroEmAndamento = { userId: data.user.id, nome, cargo, email };
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('cadastro-form').classList.add('hidden');
+  document.getElementById('verificacao-form').classList.remove('hidden');
+}
+
+async function verificarEmail() {
+  const codigo = document.getElementById('verificacao-codigo').value.trim();
+  const erro = document.getElementById('login-erro');
+  erro.classList.add('hidden');
+
+  if (!codigo || codigo.length !== 6) {
+    erro.textContent = 'Digite um código de 6 dígitos.';
+    erro.classList.remove('hidden');
+    return;
+  }
+
+  if (!registroEmAndamento) {
+    erro.textContent = 'Erro na verificação. Tente cadastrar novamente.';
+    erro.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: registroEmAndamento.email,
+      token: codigo,
+      type: 'signup'
+    });
+
+    if (error) {
+      erro.textContent = 'Código inválido. Tente novamente.';
+      erro.classList.remove('hidden');
+      return;
+    }
+
+    // Criar registro na tabela usuarios
+    const { error: erroInsert } = await supabase
+      .from('usuarios')
+      .insert([{
+        ID: registroEmAndamento.userId,
+        Nome: registroEmAndamento.nome,
+        Cargo: registroEmAndamento.cargo,
+        Iniciais: registroEmAndamento.nome.substring(0, 2).toUpperCase(),
+        Gerente_ID: 'b2001abd-63a9-4c58-aaeb-3f449b0192f3'
+      }]);
+
+    if (erroInsert) {
+      console.error('Erro ao criar perfil:', erroInsert);
+    }
+
+    // Fazer login automático
+    usuarioLogado = { 
+      email: registroEmAndamento.email, 
+      Nome: registroEmAndamento.nome, 
+      Cargo: registroEmAndamento.cargo, 
+      Iniciais: registroEmAndamento.nome.substring(0, 2).toUpperCase()
+    };
+
+    document.getElementById('user-nome').textContent = registroEmAndamento.nome;
+    document.getElementById('user-cargo').textContent = registroEmAndamento.cargo;
+    document.getElementById('user-iniciais').textContent = registroEmAndamento.nome.substring(0, 2).toUpperCase();
+    document.getElementById('f-responsavel').value = registroEmAndamento.nome;
+
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
+
+    goStep(1);
+    carregarHistorico();
+
+  } catch (err) {
+    erro.textContent = 'Erro ao verificar código: ' + err.message;
+    erro.classList.remove('hidden');
+  }
+}
+
+async function reenviarEmail() {
+  if (!registroEmAndamento) return;
+  
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: registroEmAndamento.email
+  });
+
+  const erro = document.getElementById('login-erro');
+  if (error) {
+    erro.textContent = 'Erro ao reenviar: ' + error.message;
+  } else {
+    erro.textContent = '✓ Código reenviado para seu e-mail!';
+    erro.style.color = 'var(--success)';
+  }
+  erro.classList.remove('hidden');
 }
 
 document.addEventListener('keydown', e => {
@@ -100,6 +277,7 @@ function showView(view, el) {
   const titleEl = document.getElementById('topbar-title');
   if (titleEl) titleEl.textContent = titles[view] || '';
   if (view === 'historico') carregarHistorico();
+  if (view === 'aguardando') carregarAguardando('gerente');
   return false;
 }
 
@@ -242,8 +420,8 @@ function fillReview() {
     { key: 'Endereço',         val: get('f-endereco') },
     { key: 'Responsável',      val: get('f-responsavel') },
     { key: 'Linha de produto', val: get('f-linha') },
-    { key: 'Volume 2024',      val: get('f-volume') ? get('f-volume') + ' L' : '' },
-    { key: 'Média 2024',       val: get('f-media')  ? get('f-media')  + ' L/mês' : '' },
+    { key: 'Volume',           val: get('f-volume') ? get('f-volume') + ' L' : '' },
+    { key: 'Média',            val: get('f-media')  ? get('f-media')  + ' L/mês' : '' },
   ]);
   renderReview('review-contrato', [
     { key: 'Razão social',     val: get('f-razao') },
@@ -317,8 +495,8 @@ function buildPayload() {
     Responsavel:          get('f-responsavel'),
     EmailSolicitante:     usuarioLogado?.email || '',
     LinhaProduto:         get('f-linha'),
-    Volume2024:           parseFloat(get('f-volume')) || 0,
-    Media2024:            parseFloat(get('f-media'))  || 0,
+    Volume:               parseFloat(get('f-volume')) || 0,
+    Media:                parseFloat(get('f-media'))  || 0,
     RazaoSocial:          get('f-razao'),
     CNPJ:                 get('f-cnpj'),
     EnderecoComodatario:  get('f-end-cod'),
@@ -366,9 +544,83 @@ async function carregarHistorico() {
         <td>${row.Equipamento || ''}</td>
         <td>${dataFmt}</td>
         <td><span class="status-badge ${status}">${row.Status || 'Pendente'}</span></td>
-        <td><button class="btn-icon" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button></td>
+        <td><button class="btn-icon" title="Ver detalhes" onclick="verDetalhes(${JSON.stringify(row).replace(/"/g, '&quot;')})"><i class="fa-solid fa-eye"></i></button></td>
       </tr>`;
   }).join('');
+}
+
+async function carregarAguardando(filtro = 'gerente') {
+  const container = document.getElementById('pending-list');
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align:center;color:var(--text-3);padding:24px">Carregando...</div>`;
+
+  const { data, error } = await supabase
+    .from('solicitacoes')
+    .select('*')
+    .eq('Status', filtro === 'gerente' ? 'Pendente' : (filtro === 'lider' ? 'Aprovado Gerente' : 'Aprovado Lider'))
+    .order('DataEnvio', { ascending: false });
+
+  if (error || !data || data.length === 0) {
+    container.innerHTML = `<div style="text-align:center;color:var(--text-3);padding:24px">Nenhuma solicitação nesta etapa.</div>`;
+    return;
+  }
+
+  container.innerHTML = data.map(row => {
+    const diasDecorridos = Math.floor((Date.now() - new Date(row.DataEnvio)) / (1000 * 60 * 60 * 24));
+    const dataFmt = formatDate((row.DataEnvio || '').slice(0, 10));
+    return `
+      <div class="pending-item" style="margin-bottom:16px;padding:16px;border:1px solid var(--border);border-radius:8px;cursor:pointer" onclick="verDetalhes(${JSON.stringify(row).replace(/"/g, '&quot;')})">
+        <div class="pending-icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="pending-info" style="flex:1">
+          <div class="pending-title">${row.Cliente} — ${row.Equipamento}</div>
+          <div class="pending-meta">Protocolo <span class="mono">#${new Date(row.DataEnvio).getFullYear()}-${String(data.indexOf(row) + 1).padStart(3, '0')}</span> • Enviado em ${dataFmt}</div>
+          <div class="pending-approver">Status: <strong>${row.Status || 'Pendente'}</strong></div>
+        </div>
+        <div class="pending-time">${diasDecorridos} dia${diasDecorridos !== 1 ? 's' : ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function filterAguardando(btn, filtro) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  carregarAguardando(filtro);
+}
+
+function verDetalhes(solicitacao) {
+  const modal = document.getElementById('modal-detalhes');
+  const content = document.getElementById('modal-content');
+  
+  const html = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><strong>Cód SAP:</strong> ${solicitacao.CodSAP || '-'}</div>
+      <div><strong>Tipo:</strong> ${solicitacao.TipoSolicitacao || '-'}</div>
+      <div><strong>Cliente:</strong> ${solicitacao.Cliente || '-'}</div>
+      <div><strong>Responsável:</strong> ${solicitacao.Responsavel || '-'}</div>
+      <div><strong>Linha Produto:</strong> ${solicitacao.LinhaProduto || '-'}</div>
+      <div><strong>Status:</strong> ${solicitacao.Status || '-'}</div>
+      <div style="grid-column:1/-1"><strong>Endereço Cliente:</strong> ${solicitacao.Endereco || '-'}</div>
+      <div style="grid-column:1/-1"><strong>Razão Social:</strong> ${solicitacao.RazaoSocial || '-'}</div>
+      <div><strong>CNPJ:</strong> ${solicitacao.CNPJ || '-'}</div>
+      <div><strong>Contato:</strong> ${solicitacao.ContatoNomeEmailTel || '-'}</div>
+      <div><strong>Vigência:</strong> ${solicitacao.DataInicio || '-'} até ${solicitacao.DataTermino || '-'}</div>
+      <div><strong>Local Assinatura:</strong> ${solicitacao.LocalAssinatura || '-'}</div>
+      <div style="grid-column:1/-1"><strong>Equipamento:</strong> ${solicitacao.Equipamento || '-'}</div>
+      <div><strong>Quantidade:</strong> ${solicitacao.Quantidade || '-'}</div>
+      <div><strong>Valor Estimado:</strong> R$ ${parseFloat(solicitacao.ValorEstimado || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+      <div style="grid-column:1/-1"><strong>Observações:</strong> ${solicitacao.Observacoes || '-'}</div>
+      <div><strong>Volume:</strong> ${solicitacao.Volume || '-'} L</div>
+      <div><strong>Média:</strong> ${solicitacao.Media || '-'} L/mês</div>
+    </div>
+  `;
+  
+  content.innerHTML = html;
+  modal.classList.remove('hidden');
+}
+
+function fecharModal() {
+  document.getElementById('modal-detalhes').classList.add('hidden');
 }
 
 // ══════════════════════════════════════════════
@@ -396,4 +648,35 @@ function filterHistory(btn, status) {
   document.querySelectorAll('#history-body tr').forEach(row => {
     row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
   });
+}
+
+// Expor funções globalmente
+window.fazerLogin = fazerLogin;
+window.fazerLogout = fazerLogout;
+window.mostraLogin = mostraLogin;
+window.mostraRegistro = mostraRegistro;
+window.fazerCadastro = fazerCadastro;
+window.verificarEmail = verificarEmail;
+window.reenviarEmail = reenviarEmail;
+window.showView = showView;
+window.goStep = goStep;
+window.selectToggle = selectToggle;
+window.maskCNPJ = maskCNPJ;
+window.dragOver = dragOver;
+window.dragLeave = dragLeave;
+window.dropFile = dropFile;
+window.handleFiles = handleFiles;
+window.novaSolicitacao = novaSolicitacao;
+window.filterHistory = filterHistory;
+window.enviarSolicitacao = enviarSolicitacao;
+window.carregarAguardando = carregarAguardando;
+window.filterAguardando = filterAguardando;
+window.verDetalhes = verDetalhes;
+window.fecharModal = fecharModal;
+
+console.log('✓ App.js funções expostas globalmente');
+
+// Marca como carregado
+window.__APP_LOADED__ = true;
+
 }
